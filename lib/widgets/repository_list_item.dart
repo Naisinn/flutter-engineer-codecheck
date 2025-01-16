@@ -1,6 +1,8 @@
+// widgets/repository_list_item.dart
 import 'package:flutter/material.dart';
 import '../models/repository.dart';
 
+/// リポジトリ一覧の各アイテムを表すウィジェット
 class RepositoryListItem extends StatelessWidget {
   final Repository repository;
   final VoidCallback onTap;
@@ -11,7 +13,7 @@ class RepositoryListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       title: Text(repository.name),
-      onTap: onTap,
+      onTap: onTap,  // タップ時に指定されたコールバックを実行
     );
   }
 }

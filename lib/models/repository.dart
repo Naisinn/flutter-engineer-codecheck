@@ -1,3 +1,6 @@
+// models/repository.dart
+
+/// GitHubリポジトリのデータモデル
 class Repository {
   final String name;
   final String ownerAvatarUrl;
@@ -17,6 +20,7 @@ class Repository {
     required this.openIssuesCount,
   });
 
+  /// JSONデータからRepositoryインスタンスを生成するファクトリメソッド
   factory Repository.fromJson(Map<String, dynamic> json) {
     return Repository(
       name: json['name'] ?? '',

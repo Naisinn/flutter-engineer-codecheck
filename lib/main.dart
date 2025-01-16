@@ -1,9 +1,11 @@
+// main.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/repository_provider.dart';
 import 'screens/search_screen.dart';
 
 void main() {
+  // Providerを利用してRepositoryProviderをグローバルに提供
   runApp(
     MultiProvider(
       providers: [
@@ -14,6 +16,7 @@ void main() {
   );
 }
 
+/// アプリのルートウィジェット
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -21,10 +24,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'GitHub Repository Search',
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
-      home: const SearchScreen(),
-      // 他のルート設定を必要に応じて追加
+      theme: ThemeData.light(),   // ライトテーマ
+      darkTheme: ThemeData.dark(), // ダークテーマ
+      home: const SearchScreen(),  // 最初の画面をSearchScreenに設定
+      // 必要に応じて他のルートを設定
     );
   }
 }
