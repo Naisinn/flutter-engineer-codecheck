@@ -51,6 +51,7 @@ class _SearchScreenState extends State<SearchScreen> {
             children: [
               // 検索キーワード入力フィールド
               TextField(
+                key: const Key('queryTextField'),//自動テスト用のキー
                 controller: _queryController,
                 decoration: const InputDecoration(
                   labelText: '検索キーワード',
@@ -61,6 +62,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
               // オーナー名入力フィールド
               TextField(
+                key: const Key('ownerTextField'),//自動テスト用のキー
                 controller: _ownerController,
                 decoration: const InputDecoration(
                   labelText: 'オーナー名（任意）',
@@ -71,6 +73,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
               // 言語選択用プルダウン
               DropdownButtonFormField<String>(
+                key: const Key('languageDropdown'),//自動テスト用のキー
                 value: _selectedLanguage,
                 decoration: const InputDecoration(
                   labelText: '言語（任意）',
@@ -91,6 +94,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
               // 検索ボタン
               ElevatedButton(
+                key: const Key('searchButton'),//自動テスト用のキー
                 onPressed: _search,
                 child: const Text('検索'),
               ),
