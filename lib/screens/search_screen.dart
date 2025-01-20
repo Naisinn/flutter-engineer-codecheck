@@ -50,53 +50,66 @@ class _SearchScreenState extends State<SearchScreen> {
           child: Column(
             children: [
               // 検索キーワード入力フィールド
-              TextField(
-                key: const Key('queryTextField'),//自動テスト用のキー
-                controller: _queryController,
-                decoration: const InputDecoration(
-                  labelText: '検索キーワード',
+              Semantics(
+                label: 'queryTextField',  // アクセシビリティラベルを設定
+                child: TextField(
+                  key: const Key('queryTextField'),
+                  controller: _queryController,
+                  decoration: const InputDecoration(
+                    labelText: '検索キーワード',
+                  ),
+                  onSubmitted: (_) => _search(),
                 ),
-                onSubmitted: (_) => _search(),
               ),
               const SizedBox(height: 8),
 
               // オーナー名入力フィールド
-              TextField(
-                key: const Key('ownerTextField'),//自動テスト用のキー
-                controller: _ownerController,
-                decoration: const InputDecoration(
-                  labelText: 'オーナー名（任意）',
+              Semantics(
+                label: 'ownerTextField',  // アクセシビリティラベルを設定
+                child: TextField(
+                  key: const Key('ownerTextField'),
+                  controller: _ownerController,
+                  decoration: const InputDecoration(
+                    labelText: 'オーナー名（任意）',
+                  ),
+                  onSubmitted: (_) => _search(),
                 ),
-                onSubmitted: (_) => _search(),
               ),
               const SizedBox(height: 8),
 
               // 言語選択用プルダウン
-              DropdownButtonFormField<String>(
-                key: const Key('languageDropdown'),//自動テスト用のキー
-                value: _selectedLanguage,
-                decoration: const InputDecoration(
-                  labelText: '言語（任意）',
+              Semantics(
+                label: 'languageDropdown',  // アクセシビリティラベルを設定
+                child: DropdownButtonFormField<String>(
+                  key: const Key('languageDropdown'),
+                  value: _selectedLanguage,
+                  decoration: const InputDecoration(
+                    labelText: '言語（任意）',
+                  ),
+                  items: programmingLanguages.map((lang) {
+                    return DropdownMenuItem<String>(
+                      value: lang,
+                      child: Text(lang),
+                    );
+                  }).toList(),
+                  onChanged: (newValue) {
+                    setState(() {
+                      _selectedLanguage = newValue;
+                    });
+                  },
                 ),
-                items: programmingLanguages.map((lang) {
-                  return DropdownMenuItem<String>(
-                    value: lang,
-                    child: Text(lang),
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    _selectedLanguage = newValue;
-                  });
-                },
               ),
               const SizedBox(height: 8),
 
               // 検索ボタン
-              ElevatedButton(
-                key: const Key('searchButton'),//自動テスト用のキー
-                onPressed: _search,
-                child: const Text('検索'),
+              Semantics(
+                label: 'searchButton',  // アクセシビリティラベルを設定
+                button: true,             // これはボタンであることを明示
+                child: ElevatedButton(
+                  key: const Key('searchButton'),
+                  onPressed: _search,
+                  child: const Text('検索'),
+                ),
               ),
               const SizedBox(height: 16),
 
