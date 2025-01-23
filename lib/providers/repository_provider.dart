@@ -21,6 +21,8 @@ class RepositoryProvider extends ChangeNotifier {
         String? owner,
         String? language,
         String? license, // ライセンスフィルタを追加
+        String? sort,    // ソート基準を追加
+        String? order,   // ソート順を追加
       }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -33,6 +35,8 @@ class RepositoryProvider extends ChangeNotifier {
         owner: owner,
         language: language,
         license: license, // ライセンスフィルタを渡す
+        sort: sort,       // ソート基準を渡す
+        order: order,     // ソート順を渡す
       );
     } catch (e) {
       // エラーが発生した場合、エラーメッセージを設定

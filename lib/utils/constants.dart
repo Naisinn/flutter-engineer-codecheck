@@ -1,15 +1,31 @@
 // utils/constants.dart
 
-/// プルダウンで選択可能なプログラミング言語のリスト
+// プログラミング言語のリスト
 const List<String> programmingLanguages = [
-  'Any',  // 言語指定なしの場合
+  'Any',
   'Dart',
   'JavaScript',
   'Python',
   'Java',
-  'C++',
   'C#',
-  'Go',
+  'C++',
   'Ruby',
-  // 必要に応じて他の言語を追加
+  'Go',
+  'TypeScript',
+  // 他の言語を追加
+];
+
+// ソートオプションのリスト
+const List<String> sortOptions = [
+  'Best match',
+  'Stars',
+  'Forks',
+  'Help-wanted issues',
+  'Updated',
+];
+
+// ソート順のリスト
+const List<String> sortOrderOptions = [
+  'Descending',
+  'Ascending',
 ];

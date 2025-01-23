@@ -24,8 +24,16 @@ class _SearchScreenState extends State<SearchScreen> {
   String? _selectedLanguage = programmingLanguages.first;
   String? _selectedLicense = 'Any'; // ライセンス選択の初期値を 'Any' に設定
 
+  // プルダウンで選択されたソート基準とソート順
+  String? _selectedSort = 'Best match'; // ソート基準の初期値
+  String? _selectedOrder = 'Descending'; // ソート順の初期値
+
   // ライセンスリストを取得
   final List<String> _licenseOptions = ['Any'] + LicenseUtils.licenseMap.values.map((license) => license['abbreviation'] as String).toList();
+
+  // ソートオプションとソート順のリスト
+  final List<String> _sortOptions = sortOptions; // 'Best match', 'Stars', 'Forks', 'Help-wanted issues', 'Updated'
+  final List<String> _sortOrderOptions = sortOrderOptions; // 'Descending', 'Ascending'
 
   /// 検索を実行するメソッド
   void _search() {
@@ -48,6 +56,38 @@ class _SearchScreenState extends State<SearchScreen> {
     ).value['githubKey'] as String?
         : null;
 
+    // ソート基準の変換
+    String? sort;
+    if (_selectedSort != null && _selectedSort != 'Best match') {
+      // GitHub APIのsortパラメータに対応する値を設定
+      switch (_selectedSort) {
+        case 'Stars':
+          sort = 'stars';
+          break;
+        case 'Forks':
+          sort = 'forks';
+          break;
+        case 'Help-wanted issues':
+          sort = 'help-wanted-issues';
+          break;
+        case 'Updated':
+          sort = 'updated';
+          break;
+        default:
+          sort = null;
+      }
+    } else {
+      sort = null; // 'Best match' の場合はソート基準を指定しない
+    }
+
+    // ソート順の変換
+    String? order;
+    if (sort != null && _selectedOrder != null) {
+      order = _selectedOrder!.toLowerCase(); // 'Descending' -> 'desc', 'Ascending' -> 'asc'
+    } else {
+      order = null;
+    }
+
     // 'Any'が選択されている場合は言語フィルタを適用しない
     final language = (_selectedLanguage != null && _selectedLanguage != 'Any')
         ? _selectedLanguage
@@ -56,7 +96,14 @@ class _SearchScreenState extends State<SearchScreen> {
     if (query.isNotEmpty) {
       // Providerを通じてリポジトリ検索を実行
       Provider.of<RepositoryProvider>(context, listen: false)
-          .search(query, owner: owner, language: language, license: license);
+          .search(
+        query,
+        owner: owner,
+        language: language,
+        license: license,
+        sort: sort,
+        order: order,
+      );
     }
   }
 
@@ -130,6 +177,48 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
               const SizedBox(height: 8),
 
+              // ソート基準選択用プルダウン
+              DropdownButtonFormField<String>(
+                value: _selectedSort,
+                decoration: const InputDecoration(
+                  labelText: 'ソート基準（任意）',
+                ),
+                items: _sortOptions.map((sort) {
+                  return DropdownMenuItem<String>(
+                    value: sort,
+                    child: Text(sort),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+                  setState(() {
+                    _selectedSort = newValue;
+                    // ソート順の初期値をリセット（例: 'Descending'）
+                    _selectedOrder = 'Descending';
+                  });
+                },
+              ),
+              const SizedBox(height: 8),
+
+              // ソート順選択用プルダウン
+              DropdownButtonFormField<String>(
+                value: _selectedOrder,
+                decoration: const InputDecoration(
+                  labelText: 'ソート順（任意）',
+                ),
+                items: _sortOrderOptions.map((order) {
+                  return DropdownMenuItem<String>(
+                    value: order,
+                    child: Text(order),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+                  setState(() {
+                    _selectedOrder = newValue;
+                  });
+                },
+              ),
+              const SizedBox(height: 8),
+
               // 検索ボタン
               ElevatedButton(
                 onPressed: _search,
@@ -145,7 +234,10 @@ class _SearchScreenState extends State<SearchScreen> {
               if (provider.errorMessage != null)
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(provider.errorMessage!),
+                  child: Text(
+                    provider.errorMessage!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
                 ),
 
               // 検索結果リスト

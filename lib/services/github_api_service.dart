@@ -7,12 +7,14 @@ import '../models/repository.dart';
 class GitHubApiService {
   static const String baseUrl = 'https://api.github.com';
 
-  /// キーワード、オーナー、言語、ライセンスを指定してリポジトリを検索するメソッド
+  /// キーワード、オーナー、言語、ライセンス、ソート基準、ソート順を指定してリポジトリを検索するメソッド
   Future<List<Repository>> searchRepositories(
       String query, {
         String? owner,
         String? language,
         String? license, // ライセンスパラメータを追加
+        String? sort,    // ソート基準を追加
+        String? order,   // ソート順を追加
       }) async {
     // オーナー名が指定されていればクエリに追加
     final ownerQuery = (owner != null && owner.isNotEmpty) ? 'user:$owner' : '';
@@ -28,7 +30,8 @@ class GitHubApiService {
         .join(' ');
 
     // 検索用のURLを生成
-    final url = Uri.parse('$baseUrl/search/repositories?q=$combinedQuery');
+    // ソート基準が指定されていればパラメータに追加
+    final url = Uri.parse('$baseUrl/search/repositories?q=$combinedQuery${sort != null ? '&sort=$sort' : ''}${order != null ? '&order=$order' : ''}');
 
     // HTTP GETリクエストを送信
     final response = await http.get(url);
@@ -39,7 +42,7 @@ class GitHubApiService {
       return items.map((json) => Repository.fromJson(json)).toList();
     } else {
       // エラー時は例外を投げる
-      throw Exception('Failed to load repositories');
+      throw Exception('Failed to load repositories: ${response.statusCode} ${response.reasonPhrase}');
     }
   }
 }
