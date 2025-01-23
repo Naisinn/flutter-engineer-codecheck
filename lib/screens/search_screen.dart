@@ -24,8 +24,8 @@ class _SearchScreenState extends State<SearchScreen> {
 
   /// 検索を実行するメソッド
   void _search() {
-    final query = _queryController.text.trim(); // 前後のスペースを削除
-    final owner = _ownerController.text.trim(); // 前後のスペースを削除
+    final query = _queryController.text;
+    final owner = _ownerController.text;
 
     // 'Any'が選択されている場合は言語フィルタを適用しない
     final language = (_selectedLanguage != null && _selectedLanguage != 'Any')
@@ -36,11 +36,6 @@ class _SearchScreenState extends State<SearchScreen> {
       // Providerを通じてリポジトリ検索を実行
       Provider.of<RepositoryProvider>(context, listen: false)
           .search(query, owner: owner, language: language);
-    } else {
-      // 検索キーワードが空の場合はエラーメッセージを表示
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('検索キーワードを入力してください。')),
-      );
     }
   }
 
