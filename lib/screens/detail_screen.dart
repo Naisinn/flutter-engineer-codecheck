@@ -18,18 +18,18 @@ class DetailScreen extends StatelessWidget {
     IconData iconData;
     Color iconColor;
     String url;
-    String displayName;
+    String abbreviation;
 
     if (licenseData != null) {
       iconData = licenseData['icon'];
       iconColor = licenseData['color'];
       url = licenseData['url'];
-      displayName = licenseData['abbreviation'];
+      abbreviation = licenseData['abbreviation'];
     } else {
       iconData = Icons.help_outline;
       iconColor = Colors.grey;
       url = 'https://choosealicense.com/licenses/';
-      displayName = 'Unknown';
+      abbreviation = 'Unknown';
     }
 
     return Row(
@@ -51,7 +51,7 @@ class DetailScreen extends StatelessWidget {
             }
           },
           child: Text(
-            'ライセンス: $licenseName',
+            'ライセンス: $abbreviation', // 略称を表示
             style: TextStyle(
               color: Colors.blue,
               decoration: TextDecoration.underline,
