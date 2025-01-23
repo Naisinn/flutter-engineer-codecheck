@@ -22,6 +22,7 @@ class RepositoryListItem extends StatelessWidget {
         children: [
           Text(repository.language), // 言語をサブタイトルとして表示
           Text('オーナー: ${repository.ownerName}'), // オーナー名を追加
+          Text('ライセンス: ${repository.licenseName}'), // ライセンス情報を追加
         ],
       ),
       trailing: Row(

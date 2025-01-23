@@ -11,6 +11,7 @@ class Repository {
   final int forksCount;
   final int openIssuesCount;
   final String htmlUrl;
+  final String licenseName;
 
   Repository({
     required this.name,
@@ -22,6 +23,7 @@ class Repository {
     required this.forksCount,
     required this.openIssuesCount,
     required this.htmlUrl,
+    required this.licenseName,
   });
 
   factory Repository.fromJson(Map<String, dynamic> json) {
@@ -35,6 +37,7 @@ class Repository {
       forksCount: json['forks_count'] ?? 0,
       openIssuesCount: json['open_issues_count'] ?? 0,
       htmlUrl: json['html_url'] ?? '',
+      licenseName: json['license'] != null ? json['license']['name'] : 'ライセンス情報なし',
     );
   }
 }

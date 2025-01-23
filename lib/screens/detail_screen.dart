@@ -25,7 +25,7 @@ class DetailScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8), // サイズ調整
               Text(
-                'オーナー: ${repository.ownerName}', // 追加
+                'オーナー: ${repository.ownerName}',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
@@ -38,6 +38,8 @@ class DetailScreen extends StatelessWidget {
               Text('Forks: ${repository.forksCount}'),
               const SizedBox(height: 8),
               Text('Issues: ${repository.openIssuesCount}'),
+              const SizedBox(height: 8),
+              Text('ライセンス: ${repository.licenseName}'), // ライセンス情報
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () async {
