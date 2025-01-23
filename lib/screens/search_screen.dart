@@ -24,6 +24,8 @@ class _SearchScreenState extends State<SearchScreen> {
 
   /// 検索を実行するメソッド
   void _search() {
+    FocusScope.of(context).unfocus();// キーボードを閉じる
+
     final query = _queryController.text;
     final owner = _ownerController.text;
 
