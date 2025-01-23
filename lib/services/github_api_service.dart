@@ -24,8 +24,14 @@ class GitHubApiService {
         .where((element) => element.isNotEmpty)
         .join(' ');
 
-    // 検索用のURLを生成
-    final url = Uri.parse('$baseUrl/search/repositories?q=$combinedQuery');
+    // クエリ全体を適切にエンコード
+        final encodedQuery = Uri.encodeQueryComponent(combinedQuery);
+
+    // 正しいパスを使用（スペースを削除）
+        final url = Uri.parse('$baseUrl/search/repositories?q=$encodedQuery');
+
+    // デバッグ用にURLをログ出力（オプション）
+        print('検索URL: $url');
 
     // HTTP GETリクエストを送信
     final response = await http.get(url);
@@ -36,7 +42,7 @@ class GitHubApiService {
       return items.map((json) => Repository.fromJson(json)).toList();
     } else {
       // エラー時は例外を投げる
-      throw Exception('Failed to load repositories');
+      throw Exception('Failed to load repositories: ${response.reasonPhrase}');
     }
   }
 }
