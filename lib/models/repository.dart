@@ -9,6 +9,7 @@ class Repository {
   final int watchersCount;
   final int forksCount;
   final int openIssuesCount;
+  final String htmlUrl;
 
   Repository({
     required this.name,
@@ -18,6 +19,7 @@ class Repository {
     required this.watchersCount,
     required this.forksCount,
     required this.openIssuesCount,
+    required this.htmlUrl,
   });
 
   /// JSONデータからRepositoryインスタンスを生成するファクトリメソッド
@@ -30,6 +32,7 @@ class Repository {
       watchersCount: json['watchers_count'] ?? 0,
       forksCount: json['forks_count'] ?? 0,
       openIssuesCount: json['open_issues_count'] ?? 0,
+      htmlUrl: json['html_url'] ?? '', // ← GitHub リポジトリのページURL
     );
   }
 }

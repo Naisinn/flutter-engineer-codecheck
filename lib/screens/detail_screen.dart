@@ -1,6 +1,7 @@
 // screens/detail_screen.dart
 import 'package:flutter/material.dart';
 import '../models/repository.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// リポジトリの詳細情報を表示する画面
 class DetailScreen extends StatelessWidget {
@@ -34,6 +35,23 @@ class DetailScreen extends StatelessWidget {
             Text('Forks: ${repository.forksCount}'),
             const SizedBox(height: 8),
             Text('Issues: ${repository.openIssuesCount}'),
+
+            //リポジトリのページを開くボタン
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () async {
+                final uri = Uri.parse(repository.htmlUrl);
+                if (await canLaunchUrl(uri)) {
+                  await launchUrl(uri);
+                } else {
+                  // エラーハンドリング（例: Snackbar を表示）
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('URL を開くことができませんでした。')),
+                  );
+                }
+              },
+              child: const Text('GitHubで開く'),
+            ),
           ],
         ),
       ),
