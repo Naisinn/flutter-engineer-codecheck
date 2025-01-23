@@ -1,6 +1,8 @@
 // widgets/repository_list_item.dart
+
 import 'package:flutter/material.dart';
 import '../models/repository.dart';
+import '../utils/license_utils.dart'; // 追加
 
 /// リポジトリ一覧の各アイテムを表すウィジェット
 class RepositoryListItem extends StatelessWidget {
@@ -9,34 +11,44 @@ class RepositoryListItem extends StatelessWidget {
 
   const RepositoryListItem({Key? key, required this.repository, required this.onTap}) : super(key: key);
 
-  // ライセンス名に応じたアイコンと色を取得するヘルパーメソッド
+  // 共通のライセンスマッピングを使用するヘルパーメソッド
   Widget _buildLicenseInfo(String licenseName) {
+    final licenseKey = licenseName.toLowerCase();
+    final licenseData = LicenseUtils.licenseMap[licenseKey];
+
     IconData iconData;
     Color iconColor;
+    String abbreviation;
 
-    switch (licenseName.toLowerCase()) {
-      case 'mit license':
-        iconData = Icons.verified;
-        iconColor = Colors.green;
-        break;
-      case 'apache license 2.0':
-        iconData = Icons.business;
-        iconColor = Colors.blue;
-        break;
-      case 'gnu general public license v3.0':
-        iconData = Icons.gavel;
-        iconColor = Colors.red;
-        break;
-      default:
-        iconData = Icons.help_outline;
-        iconColor = Colors.grey;
+    if (licenseData != null) {
+      iconData = licenseData['icon'];
+      iconColor = licenseData['color'];
+      abbreviation = licenseData['abbreviation'];
+    } else {
+      iconData = Icons.help_outline;
+      iconColor = Colors.grey;
+      abbreviation = 'Unknown';
     }
 
     return Row(
       children: [
         Icon(iconData, color: iconColor, size: 16),
         const SizedBox(width: 4),
-        Text('ライセンス: $licenseName'),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          decoration: BoxDecoration(
+            color: iconColor.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            abbreviation,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: iconColor,
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -54,7 +66,7 @@ class RepositoryListItem extends StatelessWidget {
         children: [
           Text(repository.language), // 言語をサブタイトルとして表示
           Text('オーナー: ${repository.ownerName}'), // オーナー名を追加
-          _buildLicenseInfo(repository.licenseName), // ライセンス情報にアイコンと色を追加
+          _buildLicenseInfo(repository.licenseName), // ライセンス情報にアイコンと略称を追加
         ],
       ),
       trailing: Row(
@@ -66,7 +78,7 @@ class RepositoryListItem extends StatelessWidget {
           Text(repository.stargazersCount.toString()),
         ],
       ),
-      onTap: onTap,  // タップ時に指定されたコールバックを実行
+      onTap: onTap, // タップ時に指定されたコールバックを実行
     );
   }
 }

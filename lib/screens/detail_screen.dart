@@ -1,12 +1,67 @@
 // screens/detail_screen.dart
+
 import 'package:flutter/material.dart';
 import '../models/repository.dart';
-import 'package:url_launcher/url_launcher.dart';
+import '../utils/license_utils.dart'; // 追加
+import 'package:url_launcher/url_launcher.dart'; // 追加
 
 class DetailScreen extends StatelessWidget {
   final Repository repository;
 
   const DetailScreen({Key? key, required this.repository}) : super(key: key);
+
+  // 共通のライセンスマッピングを使用するヘルパーメソッド
+  Widget _buildLicenseInfo(BuildContext context, String licenseName) {
+    final licenseKey = licenseName.toLowerCase();
+    final licenseData = LicenseUtils.licenseMap[licenseKey];
+
+    IconData iconData;
+    Color iconColor;
+    String url;
+    String displayName;
+
+    if (licenseData != null) {
+      iconData = licenseData['icon'];
+      iconColor = licenseData['color'];
+      url = licenseData['url'];
+      displayName = licenseData['abbreviation'];
+    } else {
+      iconData = Icons.help_outline;
+      iconColor = Colors.grey;
+      url = 'https://choosealicense.com/licenses/';
+      displayName = 'Unknown';
+    }
+
+    return Row(
+      children: [
+        Icon(iconData, color: iconColor),
+        const SizedBox(width: 8),
+        GestureDetector(
+          onTap: () async {
+            final uri = Uri.parse(url);
+            if (await canLaunchUrl(uri)) {
+              await launchUrl(
+                uri,
+                mode: LaunchMode.inAppWebView, // アプリ内ブラウザで開く
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('ライセンスの詳細ページを開くことができませんでした。')),
+              );
+            }
+          },
+          child: Text(
+            'ライセンス: $licenseName',
+            style: TextStyle(
+              color: Colors.blue,
+              decoration: TextDecoration.underline,
+              fontSize: 16,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,15 +73,20 @@ class DetailScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start, // 左揃えに変更
             children: [
-              CircleAvatar(
-                backgroundImage: NetworkImage(repository.ownerAvatarUrl),
-                radius: 40,
+              Center(
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(repository.ownerAvatarUrl),
+                  radius: 40,
+                ),
               ),
               const SizedBox(height: 8), // サイズ調整
-              Text(
-                'オーナー: ${repository.ownerName}',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              Center(
+                child: Text(
+                  'オーナー: ${repository.ownerName}', // 追加
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
               ),
               const SizedBox(height: 16),
               Text('言語: ${repository.language}'),
@@ -39,41 +99,16 @@ class DetailScreen extends StatelessWidget {
               const SizedBox(height: 8),
               Text('Issues: ${repository.openIssuesCount}'),
               const SizedBox(height: 8),
-              // ライセンス名をタップすると詳細ページに遷移
-              GestureDetector(
-                onTap: () {
-                  // ライセンス名に基づいて詳細ページのURLを生成
-                  String licenseUrl;
-                  switch (repository.licenseName.toLowerCase()) {
-                    case 'mit license':
-                      licenseUrl = 'https://opensource.org/licenses/MIT';
-                      break;
-                    case 'apache license 2.0':
-                      licenseUrl = 'https://www.apache.org/licenses/LICENSE-2.0';
-                      break;
-                    case 'gnu general public license v3.0':
-                      licenseUrl = 'https://www.gnu.org/licenses/gpl-3.0.en.html';
-                      break;
-                    default:
-                      licenseUrl = 'https://choosealicense.com/licenses/';
-                  }
-
-                  launchUrl(Uri.parse(licenseUrl));
-                },
-                child: Text(
-                  'ライセンス: ${repository.licenseName}',
-                  style: TextStyle(
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
+              _buildLicenseInfo(context, repository.licenseName), // ライセンス情報をアイコン付きで表示
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () async {
                   final uri = Uri.parse(repository.htmlUrl);
                   if (await canLaunchUrl(uri)) {
-                    await launchUrl(uri);
+                    await launchUrl(
+                      uri,
+                      mode: LaunchMode.inAppWebView, // アプリ内ブラウザで開く
+                    );
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('URL を開くことができませんでした。')),
