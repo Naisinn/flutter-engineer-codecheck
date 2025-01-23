@@ -20,6 +20,7 @@ class RepositoryProvider extends ChangeNotifier {
       String query, {
         String? owner,
         String? language,
+        String? license, // ライセンスフィルタを追加
       }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -31,6 +32,7 @@ class RepositoryProvider extends ChangeNotifier {
         query,
         owner: owner,
         language: language,
+        license: license, // ライセンスフィルタを渡す
       );
     } catch (e) {
       // エラーが発生した場合、エラーメッセージを設定
