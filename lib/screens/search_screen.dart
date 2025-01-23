@@ -117,112 +117,131 @@ class _SearchScreenState extends State<SearchScreen> {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              // 検索キーワード入力フィールド
+              // 基本検索項目
               TextField(
                 controller: _queryController,
                 decoration: const InputDecoration(
                   labelText: '検索キーワード',
+                  border: OutlineInputBorder(),
                 ),
                 onSubmitted: (_) => _search(),
               ),
               const SizedBox(height: 8),
 
-              // オーナー名入力フィールド
-              TextField(
-                controller: _ownerController,
-                decoration: const InputDecoration(
-                  labelText: 'オーナー名（任意）',
-                ),
-                onSubmitted: (_) => _search(),
-              ),
-              const SizedBox(height: 8),
+              // 折りたたみ可能な高度な検索項目
+              ExpansionTile(
+                title: const Text('高度な検索オプション'),
+                initiallyExpanded: false,
+                children: [
+                  const SizedBox(height: 8),
+                  // オーナー名入力フィールド
+                  TextField(
+                    controller: _ownerController,
+                    decoration: const InputDecoration(
+                      labelText: 'オーナー名（任意）',
+                      border: OutlineInputBorder(),
+                    ),
+                    onSubmitted: (_) => _search(),
+                  ),
+                  const SizedBox(height: 8),
 
-              // 言語選択用プルダウン
-              DropdownButtonFormField<String>(
-                value: _selectedLanguage,
-                decoration: const InputDecoration(
-                  labelText: '言語（任意）',
-                ),
-                items: programmingLanguages.map((lang) {
-                  return DropdownMenuItem<String>(
-                    value: lang,
-                    child: Text(lang),
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    _selectedLanguage = newValue;
-                  });
-                },
-              ),
-              const SizedBox(height: 8),
+                  // 言語選択用プルダウン
+                  DropdownButtonFormField<String>(
+                    value: _selectedLanguage,
+                    decoration: const InputDecoration(
+                      labelText: '言語（任意）',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: programmingLanguages.map((lang) {
+                      return DropdownMenuItem<String>(
+                        value: lang,
+                        child: Text(lang),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        _selectedLanguage = newValue;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 8),
 
-              // ライセンス選択用プルダウン
-              DropdownButtonFormField<String>(
-                value: _selectedLicense,
-                decoration: const InputDecoration(
-                  labelText: 'ライセンス（任意）',
-                ),
-                items: _licenseOptions.map((license) {
-                  return DropdownMenuItem<String>(
-                    value: license,
-                    child: Text(license),
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    _selectedLicense = newValue;
-                  });
-                },
-              ),
-              const SizedBox(height: 8),
+                  // ライセンス選択用プルダウン
+                  DropdownButtonFormField<String>(
+                    value: _selectedLicense,
+                    decoration: const InputDecoration(
+                      labelText: 'ライセンス（任意）',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: _licenseOptions.map((license) {
+                      return DropdownMenuItem<String>(
+                        value: license,
+                        child: Text(license),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        _selectedLicense = newValue;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 8),
 
-              // ソート基準選択用プルダウン
-              DropdownButtonFormField<String>(
-                value: _selectedSort,
-                decoration: const InputDecoration(
-                  labelText: 'ソート基準（任意）',
-                ),
-                items: _sortOptions.map((sort) {
-                  return DropdownMenuItem<String>(
-                    value: sort,
-                    child: Text(sort),
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    _selectedSort = newValue;
-                    // ソート順の初期値をリセット（例: 'Descending'）
-                    _selectedOrder = 'Descending';
-                  });
-                },
-              ),
-              const SizedBox(height: 8),
+                  // ソート基準選択用プルダウン
+                  DropdownButtonFormField<String>(
+                    value: _selectedSort,
+                    decoration: const InputDecoration(
+                      labelText: 'ソート基準（任意）',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: _sortOptions.map((sort) {
+                      return DropdownMenuItem<String>(
+                        value: sort,
+                        child: Text(sort),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        _selectedSort = newValue;
+                        // ソート順の初期値をリセット（例: 'Descending'）
+                        _selectedOrder = 'Descending';
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 8),
 
-              // ソート順選択用プルダウン
-              DropdownButtonFormField<String>(
-                value: _selectedOrder,
-                decoration: const InputDecoration(
-                  labelText: 'ソート順（任意）',
-                ),
-                items: _sortOrderOptions.map((order) {
-                  return DropdownMenuItem<String>(
-                    value: order,
-                    child: Text(order),
-                  );
-                }).toList(),
-                onChanged: (newValue) {
-                  setState(() {
-                    _selectedOrder = newValue;
-                  });
-                },
+                  // ソート順選択用プルダウン
+                  DropdownButtonFormField<String>(
+                    value: _selectedOrder,
+                    decoration: const InputDecoration(
+                      labelText: 'ソート順（任意）',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: _sortOrderOptions.map((order) {
+                      return DropdownMenuItem<String>(
+                        value: order,
+                        child: Text(order),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        _selectedOrder = newValue;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                ],
               ),
+
               const SizedBox(height: 8),
 
               // 検索ボタン
-              ElevatedButton(
-                onPressed: _search,
-                child: const Text('検索'),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _search,
+                  child: const Text('検索'),
+                ),
               ),
               const SizedBox(height: 16),
 
@@ -241,29 +260,30 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
 
               // 検索結果リスト
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.5,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: provider.repositories.length,
-                  itemBuilder: (context, index) {
-                    return RepositoryListItem(
-                      repository: provider.repositories[index],
-                      onTap: () {
-                        // アイテムタップで詳細画面へ遷移
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DetailScreen(
-                              repository: provider.repositories[index],
+              if (!provider.isLoading && provider.repositories.isNotEmpty)
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: provider.repositories.length,
+                    itemBuilder: (context, index) {
+                      return RepositoryListItem(
+                        repository: provider.repositories[index],
+                        onTap: () {
+                          // アイテムタップで詳細画面へ遷移
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DetailScreen(
+                                repository: provider.repositories[index],
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    );
-                  },
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ),
-              ),
             ],
           ),
         ),
