@@ -12,8 +12,18 @@ class RepositoryListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      leading: CircleAvatar(
+        backgroundImage: NetworkImage(repository.ownerAvatarUrl),
+      ),
       title: Text(repository.name),
-      subtitle: Text(repository.language), // 言語をサブタイトルとして表示
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(repository.language), // 言語をサブタイトルとして表示
+          Text('オーナー: ${repository.ownerName}'), // オーナー名を追加
+        ],
+      ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../models/repository.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// リポジトリの詳細情報を表示する画面
 class DetailScreen extends StatelessWidget {
   final Repository repository;
 
@@ -19,11 +18,15 @@ class DetailScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CircleAvatar(
                 backgroundImage: NetworkImage(repository.ownerAvatarUrl),
                 radius: 40,
+              ),
+              const SizedBox(height: 8), // サイズ調整
+              Text(
+                'オーナー: ${repository.ownerName}', // 追加
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               Text('言語: ${repository.language}'),
