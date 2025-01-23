@@ -39,7 +39,35 @@ class DetailScreen extends StatelessWidget {
               const SizedBox(height: 8),
               Text('Issues: ${repository.openIssuesCount}'),
               const SizedBox(height: 8),
-              Text('ライセンス: ${repository.licenseName}'), // ライセンス情報
+              // ライセンス名をタップすると詳細ページに遷移
+              GestureDetector(
+                onTap: () {
+                  // ライセンス名に基づいて詳細ページのURLを生成
+                  String licenseUrl;
+                  switch (repository.licenseName.toLowerCase()) {
+                    case 'mit license':
+                      licenseUrl = 'https://opensource.org/licenses/MIT';
+                      break;
+                    case 'apache license 2.0':
+                      licenseUrl = 'https://www.apache.org/licenses/LICENSE-2.0';
+                      break;
+                    case 'gnu general public license v3.0':
+                      licenseUrl = 'https://www.gnu.org/licenses/gpl-3.0.en.html';
+                      break;
+                    default:
+                      licenseUrl = 'https://choosealicense.com/licenses/';
+                  }
+
+                  launchUrl(Uri.parse(licenseUrl));
+                },
+                child: Text(
+                  'ライセンス: ${repository.licenseName}',
+                  style: TextStyle(
+                    color: Colors.blue,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () async {

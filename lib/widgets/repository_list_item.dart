@@ -9,6 +9,38 @@ class RepositoryListItem extends StatelessWidget {
 
   const RepositoryListItem({Key? key, required this.repository, required this.onTap}) : super(key: key);
 
+  // ライセンス名に応じたアイコンと色を取得するヘルパーメソッド
+  Widget _buildLicenseInfo(String licenseName) {
+    IconData iconData;
+    Color iconColor;
+
+    switch (licenseName.toLowerCase()) {
+      case 'mit license':
+        iconData = Icons.verified;
+        iconColor = Colors.green;
+        break;
+      case 'apache license 2.0':
+        iconData = Icons.business;
+        iconColor = Colors.blue;
+        break;
+      case 'gnu general public license v3.0':
+        iconData = Icons.gavel;
+        iconColor = Colors.red;
+        break;
+      default:
+        iconData = Icons.help_outline;
+        iconColor = Colors.grey;
+    }
+
+    return Row(
+      children: [
+        Icon(iconData, color: iconColor, size: 16),
+        const SizedBox(width: 4),
+        Text('ライセンス: $licenseName'),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListTile(
@@ -22,7 +54,7 @@ class RepositoryListItem extends StatelessWidget {
         children: [
           Text(repository.language), // 言語をサブタイトルとして表示
           Text('オーナー: ${repository.ownerName}'), // オーナー名を追加
-          Text('ライセンス: ${repository.licenseName}'), // ライセンス情報を追加
+          _buildLicenseInfo(repository.licenseName), // ライセンス情報にアイコンと色を追加
         ],
       ),
       trailing: Row(
