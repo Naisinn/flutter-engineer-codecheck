@@ -15,17 +15,17 @@ const List<String> programmingLanguages = [
   // 他の言語を追加
 ];
 
-// ソートオプションのリスト
-const List<String> sortOptions = [
-  'Best match',
-  'Stars',
-  'Forks',
-  'Help-wanted issues',
-  'Updated',
-];
+// ソート基準のマッピング（日本語ラベル : GitHub APIキー）
+const Map<String, String> sortOptions = {
+  'ベストマッチ': '', // デフォルト（ソート基準なし）
+  'スター数': 'stars',
+  'フォーク数': 'forks',
+  'ヘルプが必要なイシュー数': 'help-wanted-issues',
+  '更新日時': 'updated',
+};
 
-// ソート順のリスト
-const List<String> sortOrderOptions = [
-  'Descending',
-  'Ascending',
-];
+// ソート順のマッピング（日本語ラベル : GitHub APIキー）
+const Map<String, String> sortOrderOptions = {
+  '降順': 'desc',
+  '昇順': 'asc',
+};

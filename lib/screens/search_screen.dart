@@ -25,15 +25,15 @@ class _SearchScreenState extends State<SearchScreen> {
   String? _selectedLicense = 'Any'; // ライセンス選択の初期値を 'Any' に設定
 
   // プルダウンで選択されたソート基準とソート順
-  String? _selectedSort = 'Best match'; // ソート基準の初期値
-  String? _selectedOrder = 'Descending'; // ソート順の初期値
+  String? _selectedSort = 'ベストマッチ'; // ソート基準の初期値（日本語）
+  String? _selectedOrder = '降順'; // ソート順の初期値（日本語）
 
   // ライセンスリストを取得
   final List<String> _licenseOptions = ['Any'] + LicenseUtils.licenseMap.values.map((license) => license['abbreviation'] as String).toList();
 
-  // ソートオプションとソート順のリスト
-  final List<String> _sortOptions = sortOptions; // 'Best match', 'Stars', 'Forks', 'Help-wanted issues', 'Updated'
-  final List<String> _sortOrderOptions = sortOrderOptions; // 'Descending', 'Ascending'
+  // ソートオプションとソート順のリスト（日本語）
+  final List<String> _sortOptions = sortOptions.keys.toList(); // 'ベストマッチ', 'スター数', 'フォーク数', 'ヘルプが必要なイシュー数', '更新日時'
+  final List<String> _sortOrderOptions = sortOrderOptions.keys.toList(); // '降順', '昇順'
 
   /// 検索を実行するメソッド
   void _search() {
@@ -56,34 +56,18 @@ class _SearchScreenState extends State<SearchScreen> {
     ).value['githubKey'] as String?
         : null;
 
-    // ソート基準の変換
+    // ソート基準の変換（日本語ラベルからAPIキーへ）
     String? sort;
-    if (_selectedSort != null && _selectedSort != 'Best match') {
-      // GitHub APIのsortパラメータに対応する値を設定
-      switch (_selectedSort) {
-        case 'Stars':
-          sort = 'stars';
-          break;
-        case 'Forks':
-          sort = 'forks';
-          break;
-        case 'Help-wanted issues':
-          sort = 'help-wanted-issues';
-          break;
-        case 'Updated':
-          sort = 'updated';
-          break;
-        default:
-          sort = null;
-      }
+    if (_selectedSort != null && _selectedSort != 'ベストマッチ') {
+      sort = sortOptions[_selectedSort!];
     } else {
-      sort = null; // 'Best match' の場合はソート基準を指定しない
+      sort = null; // 'ベストマッチ' の場合はソート基準を指定しない
     }
 
-    // ソート順の変換
+    // ソート順の変換（日本語ラベルからAPIキーへ）
     String? order;
     if (sort != null && _selectedOrder != null) {
-      order = _selectedOrder!.toLowerCase(); // 'Descending' -> 'desc', 'Ascending' -> 'asc'
+      order = sortOrderOptions[_selectedOrder!];
     } else {
       order = null;
     }
@@ -187,7 +171,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                   const SizedBox(height: 8),
 
-                  // ソート基準選択用プルダウン
+                  // ソート基準選択用プルダウン（日本語）
                   DropdownButtonFormField<String>(
                     value: _selectedSort,
                     decoration: const InputDecoration(
@@ -203,14 +187,14 @@ class _SearchScreenState extends State<SearchScreen> {
                     onChanged: (newValue) {
                       setState(() {
                         _selectedSort = newValue;
-                        // ソート順の初期値をリセット（例: 'Descending'）
-                        _selectedOrder = 'Descending';
+                        // ソート順の初期値をリセット（例: '降順'）
+                        _selectedOrder = '降順';
                       });
                     },
                   ),
                   const SizedBox(height: 8),
 
-                  // ソート順選択用プルダウン
+                  // ソート順選択用プルダウン（日本語）
                   DropdownButtonFormField<String>(
                     value: _selectedOrder,
                     decoration: const InputDecoration(
