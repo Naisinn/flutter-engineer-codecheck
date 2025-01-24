@@ -90,7 +90,7 @@ class DetailScreen extends StatelessWidget {
               }
             }
           },
-          child: SelectableText(
+          child: Text(
             'ライセンス: $abbreviation', // 略称を表示
             style: TextStyle(
               color: Colors.blue,
