@@ -102,7 +102,10 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     final provider = Provider.of<RepositoryProvider>(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('GitHub Search')),
+      appBar: AppBar(
+        title: const Text('GitHub Search'),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+      ),
       body: ListView(
         padding: const EdgeInsets.all(8.0),
         children: [
@@ -249,7 +252,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
                     provider.errorMessage!,
-                    style: const TextStyle(color: Colors.red),
+                    style: TextStyle(color: Theme.of(context).colorScheme.error),
                   ),
                 ),
             ],

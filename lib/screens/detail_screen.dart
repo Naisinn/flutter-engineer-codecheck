@@ -30,7 +30,7 @@ class DetailScreen extends StatelessWidget {
       abbreviation = licenseData['abbreviation'];
     } else {
       iconData = Icons.help_outline;
-      iconColor = Colors.grey;
+      iconColor = Theme.of(context).colorScheme.onSurface; // ダークモード対応
       url = 'https://choosealicense.com/licenses/';
       abbreviation = 'Unknown';
     }
@@ -48,7 +48,10 @@ class DetailScreen extends StatelessWidget {
           if (!launched) {
             // 内部ブラウザで開けなかった場合、SnackBarを表示してから外部ブラウザを開く
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('内部ブラウザで開けなかったため、外部ブラウザで開きます。')),
+              SnackBar(
+                content: Text('内部ブラウザで開けなかったため、外部ブラウザで開きます。'),
+                backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+              ),
             );
             launched = await launchUrl(
               uri,
@@ -56,14 +59,20 @@ class DetailScreen extends StatelessWidget {
             );
             if (!launched) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('ライセンスの詳細ページを開くことができませんでした。')),
+                SnackBar(
+                  content: Text('ライセンスの詳細ページを開くことができませんでした。'),
+                  backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                ),
               );
             }
           }
         } catch (e) {
           // 例外が発生した場合も外部ブラウザを試みる前にSnackBarを表示
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('エラーが発生しました。外部ブラウザで開きます。')),
+            SnackBar(
+              content: Text('エラーが発生しました。外部ブラウザで開きます。'),
+              backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+            ),
           );
           try {
             launched = await launchUrl(
@@ -72,16 +81,25 @@ class DetailScreen extends StatelessWidget {
             );
             if (!launched) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('ライセンスの詳細ページを開くことができませんでした。')),
+                SnackBar(
+                  content: Text('ライセンスの詳細ページを開くことができませんでした。'),
+                  backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                ),
               );
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('外部ブラウザで開きました。')),
+                SnackBar(
+                  content: Text('外部ブラウザで開きました。'),
+                  backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                ),
               );
             }
           } catch (e) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('ライセンスの詳細ページを開くことができませんでした。')),
+              SnackBar(
+                content: Text('ライセンスの詳細ページを開くことができませんでした。'),
+                backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+              ),
             );
           }
         }
@@ -94,7 +112,7 @@ class DetailScreen extends StatelessWidget {
           Text(
             abbreviation, // 略称を表示
             style: TextStyle(
-              color: Colors.blue,
+              color: Theme.of(context).colorScheme.primary,
               decoration: TextDecoration.underline,
               fontSize: 14,
             ),
@@ -150,6 +168,7 @@ class DetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(repository.name),
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -167,7 +186,11 @@ class DetailScreen extends StatelessWidget {
               Center(
                 child: SelectableText(
                   'オーナー: ${repository.ownerName}', // 追加
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -182,7 +205,7 @@ class DetailScreen extends StatelessWidget {
                     _buildAttributeItem(
                       context: context,
                       icon: Icons.star,
-                      iconColor: Colors.amber,
+                      iconColor: Theme.of(context).colorScheme.secondary,
                       text: '${repository.stargazersCount}',
                       description:
                       'Stars: このリポジトリにスターを付けたユーザーの数です。',
@@ -191,7 +214,7 @@ class DetailScreen extends StatelessWidget {
                     _buildAttributeItem(
                       context: context,
                       icon: Icons.remove_red_eye,
-                      iconColor: Colors.blueGrey,
+                      iconColor: Theme.of(context).colorScheme.secondary,
                       text: '${repository.watchersCount}',
                       description:
                       'Watchers: このリポジトリをウォッチしているユーザーの数です。',
@@ -200,7 +223,7 @@ class DetailScreen extends StatelessWidget {
                     _buildAttributeItem(
                       context: context,
                       icon: Icons.call_split,
-                      iconColor: Colors.green,
+                      iconColor: Theme.of(context).colorScheme.secondary,
                       text: '${repository.forksCount}',
                       description:
                       'Forks: このリポジトリがフォークされた回数です。',
@@ -209,7 +232,7 @@ class DetailScreen extends StatelessWidget {
                     _buildAttributeItem(
                       context: context,
                       icon: Icons.error_outline,
-                      iconColor: Colors.redAccent,
+                      iconColor: Theme.of(context).colorScheme.secondary,
                       text: '${repository.openIssuesCount}',
                       description:
                       'Issues: このリポジトリの現在開いている課題の数です。',
@@ -218,7 +241,7 @@ class DetailScreen extends StatelessWidget {
                     _buildAttributeItem(
                       context: context,
                       icon: Icons.code,
-                      iconColor: Colors.grey[700]!,
+                      iconColor: Theme.of(context).colorScheme.onSurface,
                       text: repository.language ?? 'N/A',
                       description:
                       '言語: このリポジトリで主に使用されているプログラミング言語です。',
@@ -243,7 +266,10 @@ class DetailScreen extends StatelessWidget {
                     if (!launched) {
                       // 内部ブラウザで開けなかった場合、SnackBarを表示してから外部ブラウザを開く
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('内部ブラウザで開けなかったため、外部ブラウザで開きます。')),
+                        SnackBar(
+                          content: Text('内部ブラウザで開けなかったため、外部ブラウザで開きます。'),
+                          backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                        ),
                       );
                       launched = await launchUrl(
                         uri,
@@ -251,14 +277,20 @@ class DetailScreen extends StatelessWidget {
                       );
                       if (!launched) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('URL を開くことができませんでした。')),
+                          SnackBar(
+                            content: Text('URL を開くことができませんでした。'),
+                            backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                          ),
                         );
                       }
                     }
                   } catch (e) {
                     // 例外が発生した場合も外部ブラウザを試みる前にSnackBarを表示
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('エラーが発生しました。外部ブラウザで開きます。')),
+                      SnackBar(
+                        content: Text('エラーが発生しました。外部ブラウザで開きます。'),
+                        backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                      ),
                     );
                     try {
                       launched = await launchUrl(
@@ -267,16 +299,25 @@ class DetailScreen extends StatelessWidget {
                       );
                       if (!launched) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('URL を開くことができませんでした。')),
+                          SnackBar(
+                            content: Text('URL を開くことができませんでした。'),
+                            backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                          ),
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('外部ブラウザで開きました。')),
+                          SnackBar(
+                            content: Text('外部ブラウザで開きました。'),
+                            backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                          ),
                         );
                       }
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('URL を開くことができませんでした。')),
+                        SnackBar(
+                          content: Text('URL を開くことができませんでした。'),
+                          backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                        ),
                       );
                     }
                   }
@@ -294,12 +335,15 @@ class DetailScreen extends StatelessWidget {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
-                    return SelectableText(
+                    return Text(
                       'READMEを取得できませんでした: ${snapshot.error}',
-                      style: const TextStyle(color: Colors.red),
+                      style: TextStyle(color: Theme.of(context).colorScheme.error),
                     );
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return SelectableText('READMEがありません。');
+                    return Text(
+                      'READMEがありません。',
+                      style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
+                    );
                   } else {
                     String readmeContent = snapshot.data!;
 
@@ -404,7 +448,10 @@ class DetailScreen extends StatelessWidget {
                             );
                             if (!launched) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('内部ブラウザで開けなかったため、外部ブラウザで開きます。')),
+                                SnackBar(
+                                  content: Text('内部ブラウザで開けなかったため、外部ブラウザで開きます。'),
+                                  backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                                ),
                               );
                               launched = await launchUrl(
                                 uri,
@@ -412,17 +459,26 @@ class DetailScreen extends StatelessWidget {
                               );
                               if (!launched) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('リンクを開くことができませんでした。')),
+                                  SnackBar(
+                                    content: Text('リンクを開くことができませんでした。'),
+                                    backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                                  ),
                                 );
                               }
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('リンクを開きました。')),
+                                SnackBar(
+                                  content: Text('リンクを開きました。'),
+                                  backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                                ),
                               );
                             }
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('エラーが発生しました。リンクを開けません。')),
+                              SnackBar(
+                                content: Text('エラーが発生しました。リンクを開けません。'),
+                                backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                              ),
                             );
                           }
                         }
@@ -440,7 +496,9 @@ class DetailScreen extends StatelessWidget {
                             placeholderBuilder: (context) => SizedBox(
                               width: 24,
                               height: 24,
-                              child: CircularProgressIndicator(),
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
+                              ),
                             ),
                             // エラーハンドリングを追加するために、カスタムウィジェットを使用
                             // flutter_svg では直接的なエラーハンドリングはサポートされていないため、
@@ -453,7 +511,10 @@ class DetailScreen extends StatelessWidget {
                           return Image.network(
                             imageUrl,
                             errorBuilder: (context, error, stackTrace) {
-                              return Text('画像を読み込めませんでした: ${alt ?? 'Unknown Image'}');
+                              return Text(
+                                '画像を読み込めませんでした: ${alt ?? 'Unknown Image'}',
+                                style: TextStyle(color: Theme.of(context).colorScheme.error),
+                              );
                             },
                           );
                         }
