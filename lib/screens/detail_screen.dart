@@ -105,7 +105,7 @@ class DetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // README のベース URLを設定（画像の相対パスを絶対パスに変換するため）
-    final String readmeBaseUrl = 'https://raw.githubusercontent.com/${repository.ownerName}/${repository.name}/main/';
+    final String readmeBaseUrl = 'https://raw.githubusercontent.com/${repository.ownerName}/${repository.name}/HEAD/';
 
     return Scaffold(
       appBar: AppBar(
