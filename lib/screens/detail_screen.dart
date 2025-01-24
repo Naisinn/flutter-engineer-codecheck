@@ -89,7 +89,7 @@ class DetailScreen extends StatelessWidget {
               }
             }
           },
-          child: Text(
+          child: SelectableText(
             'ライセンス: $abbreviation', // 略称を表示
             style: TextStyle(
               color: Colors.blue,
@@ -125,21 +125,21 @@ class DetailScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8), // サイズ調整
               Center(
-                child: Text(
+                child: SelectableText(
                   'オーナー: ${repository.ownerName}', // 追加
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(height: 16),
-              Text('言語: ${repository.language}'),
+              SelectableText('言語: ${repository.language}'),
               const SizedBox(height: 8),
-              Text('Stars: ${repository.stargazersCount}'),
+              SelectableText('Stars: ${repository.stargazersCount}'),
               const SizedBox(height: 8),
-              Text('Watchers: ${repository.watchersCount}'),
+              SelectableText('Watchers: ${repository.watchersCount}'),
               const SizedBox(height: 8),
-              Text('Forks: ${repository.forksCount}'),
+              SelectableText('Forks: ${repository.forksCount}'),
               const SizedBox(height: 8),
-              Text('Issues: ${repository.openIssuesCount}'),
+              SelectableText('Issues: ${repository.openIssuesCount}'),
               const SizedBox(height: 8),
               _buildLicenseInfo(context, repository.licenseName), // ライセンス情報をアイコン付きで表示
               const SizedBox(height: 16),
@@ -207,16 +207,17 @@ class DetailScreen extends StatelessWidget {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
-                    return Text(
+                    return SelectableText(
                       'READMEを取得できませんでした: ${snapshot.error}',
                       style: const TextStyle(color: Colors.red),
                     );
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Text('READMEがありません。');
+                    return SelectableText('READMEがありません。');
                   } else {
                     final String readmeContent = snapshot.data!;
 
-                    return MarkdownBody( // 変更: Text を MarkdownBody に変更
+                    return MarkdownBody(
+                      selectable: true, // 追加: Markdownを選択可能にする
                       data: readmeContent,
                       onTapLink: (text, href, title) async {
                         if (href != null) {
@@ -252,7 +253,7 @@ class DetailScreen extends StatelessWidget {
                           }
                         }
                       },
-                      imageBuilder: (uri, title, alt) { // 追加: 画像のビルダーをカスタマイズ
+                      imageBuilder: (uri, title, alt) {
                         // 画像のURLが相対パスの場合、リポジトリのベースURLを使用して絶対URLを生成
                         final String imageUrl = uri.isAbsolute
                             ? uri.toString()
