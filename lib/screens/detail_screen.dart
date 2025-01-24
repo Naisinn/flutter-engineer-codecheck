@@ -214,7 +214,92 @@ class DetailScreen extends StatelessWidget {
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return SelectableText('READMEがありません。');
                   } else {
-                    final String readmeContent = snapshot.data!;
+                    String readmeContent = snapshot.data!;
+
+                    // RSTをMarkdownに変換する前処理を追加
+                    // 1. 画像ディレクティブの変換
+                    final RegExp imageRegExp = RegExp(
+                      r'\.\.\s+image::\s+(\S+)\s+:alt:\s+([^:]+)\s+:target:\s+(\S+)',
+                      multiLine: true,
+                    );
+
+                    readmeContent = readmeContent.replaceAllMapped(imageRegExp, (match) {
+                      final imageUrl = match.group(1) ?? '';
+                      final altText = match.group(2) ?? '';
+                      final targetUrl = match.group(3) ?? '';
+                      return '[![$altText]($imageUrl)]($targetUrl)';
+                    });
+
+                    // 2. 見出しの変換
+                    // RSTの見出しは、テキストの下に等号やハイフンなどで装飾されます。
+                    // これをMarkdownの#、##に変換します。
+                    // ここでは、'=' がレベル1、'-' がレベル2、'^' がレベル3として処理します。
+
+                    // レベル1 見出し
+                    final RegExp heading1RegExp = RegExp(
+                      r'^(.*?)\n=+\n',
+                      multiLine: true,
+                    );
+                    readmeContent = readmeContent.replaceAllMapped(heading1RegExp, (match) {
+                      final title = match.group(1)?.trim() ?? '';
+                      return '# $title\n\n';
+                    });
+
+                    // レベル2 見出し
+                    final RegExp heading2RegExp = RegExp(
+                      r'^(.*?)\n-+\n',
+                      multiLine: true,
+                    );
+                    readmeContent = readmeContent.replaceAllMapped(heading2RegExp, (match) {
+                      final title = match.group(1)?.trim() ?? '';
+                      return '## $title\n\n';
+                    });
+
+                    // レベル3 見出し
+                    final RegExp heading3RegExp = RegExp(
+                      r'^(.*?)\n~+\n',
+                      multiLine: true,
+                    );
+                    readmeContent = readmeContent.replaceAllMapped(heading3RegExp, (match) {
+                      final title = match.group(1)?.trim() ?? '';
+                      return '### $title\n\n';
+                    });
+
+                    // 3. 太字と斜体の変換
+                    // RSTでは、*斜体*、**太字** などが使用されますが、Markdownと同様の形式なので特別な変換は不要です。
+
+                    // 4. リストの変換
+                    // RSTの箇条書きリストは、'- ' や '* ' で始まります。Markdownと同様なので特別な変換は不要です。
+
+                    // 5. リンクの変換
+                    // RSTのリンクは、`link text <URL>`_ の形式です。これをMarkdownの[link text](URL)に変換します。
+                    final RegExp linkRegExp = RegExp(
+                      r'`([^`<]+)\s*<([^>]+)>`_',
+                      multiLine: true,
+                    );
+                    readmeContent = readmeContent.replaceAllMapped(linkRegExp, (match) {
+                      final text = match.group(1)?.trim() ?? '';
+                      final url = match.group(2)?.trim() ?? '';
+                      return '[$text]($url)';
+                    });
+
+                    // 6. コードブロックの変換
+                    // RSTのコードブロックは、:: の後にインデントされたテキストで表現されます。
+                    // これをMarkdownの```で囲まれたブロックに変換します。
+                    final RegExp codeBlockRegExp = RegExp(
+                      r'::\n((?:\n| +.+)+)',
+                      multiLine: true,
+                    );
+                    readmeContent = readmeContent.replaceAllMapped(codeBlockRegExp, (match) {
+                      final code = match.group(1)?.replaceAll(RegExp(r'^\s{4}', multiLine: true), '') ?? '';
+                      return '```\n$code\n```\n';
+                    });
+
+                    // 7. 引用の変換
+                    // RSTの引用は、"> " で始まる行で表現されます。Markdownと同様の形式なので特別な変換は不要です。
+
+                    // 8. その他の変換
+                    // 必要に応じて追加の変換ロジックをここに追加します。
 
                     return MarkdownBody(
                       selectable: true, // 追加: Markdownを選択可能にする
