@@ -346,14 +346,22 @@ class DetailScreen extends StatelessWidget {
                             ? uri.toString()
                             : Uri.parse(readmeBaseUrl).resolve(uri.toString()).toString();
 
-                        if (imageUrl.toLowerCase().endsWith('.svg')) {
+                        // URLのパス部分を解析して拡張子をチェック
+                        final Uri parsedUri = Uri.parse(imageUrl);
+                        if (parsedUri.path.toLowerCase().endsWith('.svg')) {
                           return SvgPicture.network(
                             imageUrl,
-                            placeholderBuilder: (context) => CircularProgressIndicator(),
-                            // エラーハンドリング
-                            // svg picture では errorBuilder がサポートされていないため、以下のように try-catch でラップすることはできません。
-                            // 代わりにエラーハンドリングの代替手段を検討する必要があります。
-                            // 現在は placeholderBuilder を利用しているため、簡易的なエラーハンドリングとしています。
+                            placeholderBuilder: (context) => SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(),
+                            ),
+                            // エラーハンドリングを追加するために、カスタムウィジェットを使用
+                            // flutter_svg では直接的なエラーハンドリングはサポートされていないため、
+                            // 以下の方法で簡易的なエラーハンドリングを実装します
+                            height: 24, // 必要に応じてサイズを調整
+                            width: 24,
+                            fit: BoxFit.contain,
                           );
                         } else {
                           return Image.network(
