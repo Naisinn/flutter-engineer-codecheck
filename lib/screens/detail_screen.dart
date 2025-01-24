@@ -40,15 +40,48 @@ class DetailScreen extends StatelessWidget {
         GestureDetector(
           onTap: () async {
             final uri = Uri.parse(url);
-            if (await canLaunchUrl(uri)) {
-              await launchUrl(
+            bool launched = false;
+            try {
+              // 内部ブラウザで開くことを試みる
+              launched = await launchUrl(
                 uri,
-                mode: LaunchMode.inAppWebView, // アプリ内ブラウザで開く
+                mode: LaunchMode.inAppWebView,
               );
-            } else {
+              if (!launched) {
+                // 内部ブラウザで開けなかった場合、SnackBarを表示してから外部ブラウザを開く
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('内部ブラウザで開けなかったため、外部ブラウザで開きます。')),
+                );
+                launched = await launchUrl(
+                  uri,
+                  mode: LaunchMode.externalApplication,
+                );
+                if (!launched) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('ライセンスの詳細ページを開くことができませんでした。')),
+                  );
+                }
+              }
+            } catch (e) {
+              // 例外が発生した場合も外部ブラウザを試みる前にSnackBarを表示
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('ライセンスの詳細ページを開くことができませんでした。')),
+                SnackBar(content: Text('エラーが発生しました。外部ブラウザで開きます。')),
               );
+              try {
+                launched = await launchUrl(
+                  uri,
+                  mode: LaunchMode.externalApplication,
+                );
+                if (!launched) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('ライセンスの詳細ページを開くことができませんでした。')),
+                  );
+                }
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('ライセンスの詳細ページを開くことができませんでした。')),
+                );
+              }
             }
           },
           child: Text(
@@ -105,15 +138,48 @@ class DetailScreen extends StatelessWidget {
               ElevatedButton(
                 onPressed: () async {
                   final uri = Uri.parse(repository.htmlUrl);
-                  if (await canLaunchUrl(uri)) {
-                    await launchUrl(
+                  bool launched = false;
+                  try {
+                    // 内部ブラウザで開くことを試みる
+                    launched = await launchUrl(
                       uri,
-                      mode: LaunchMode.inAppWebView, // アプリ内ブラウザで開く
+                      mode: LaunchMode.inAppWebView,
                     );
-                  } else {
+                    if (!launched) {
+                      // 内部ブラウザで開けなかった場合、SnackBarを表示してから外部ブラウザを開く
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('内部ブラウザで開けなかったため、外部ブラウザで開きます。')),
+                      );
+                      launched = await launchUrl(
+                        uri,
+                        mode: LaunchMode.externalApplication,
+                      );
+                      if (!launched) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('URL を開くことができませんでした。')),
+                        );
+                      }
+                    }
+                  } catch (e) {
+                    // 例外が発生した場合も外部ブラウザを試みる前にSnackBarを表示
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('URL を開くことができませんでした。')),
+                      SnackBar(content: Text('エラーが発生しました。外部ブラウザで開きます。')),
                     );
+                    try {
+                      launched = await launchUrl(
+                        uri,
+                        mode: LaunchMode.externalApplication,
+                      );
+                      if (!launched) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('URL を開くことができませんでした。')),
+                        );
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('URL を開くことができませんでした。')),
+                      );
+                    }
                   }
                 },
                 child: const Text('GitHubで開く'),
