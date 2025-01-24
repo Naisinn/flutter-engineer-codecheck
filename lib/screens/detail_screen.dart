@@ -35,71 +35,71 @@ class DetailScreen extends StatelessWidget {
       abbreviation = 'Unknown';
     }
 
-    return Row(
-      children: [
-        Icon(iconData, color: iconColor),
-        const SizedBox(width: 8),
-        GestureDetector(
-          onTap: () async {
-            final uri = Uri.parse(url);
-            bool launched = false;
-            try {
-              // 内部ブラウザで開くことを試みる
-              launched = await launchUrl(
-                uri,
-                mode: LaunchMode.inAppWebView,
-              );
-              if (!launched) {
-                // 内部ブラウザで開けなかった場合、SnackBarを表示してから外部ブラウザを開く
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('内部ブラウザで開けなかったため、外部ブラウザで開きます。')),
-                );
-                launched = await launchUrl(
-                  uri,
-                  mode: LaunchMode.externalApplication,
-                );
-                if (!launched) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('ライセンスの詳細ページを開くことができませんでした。')),
-                  );
-                }
-              }
-            } catch (e) {
-              // 例外が発生した場合も外部ブラウザを試みる前にSnackBarを表示
+    return GestureDetector(
+      onTap: () async {
+        final uri = Uri.parse(url);
+        bool launched = false;
+        try {
+          // 内部ブラウザで開くことを試みる
+          launched = await launchUrl(
+            uri,
+            mode: LaunchMode.inAppWebView,
+          );
+          if (!launched) {
+            // 内部ブラウザで開けなかった場合、SnackBarを表示してから外部ブラウザを開く
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('内部ブラウザで開けなかったため、外部ブラウザで開きます。')),
+            );
+            launched = await launchUrl(
+              uri,
+              mode: LaunchMode.externalApplication,
+            );
+            if (!launched) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('エラーが発生しました。外部ブラウザで開きます。')),
+                SnackBar(content: Text('ライセンスの詳細ページを開くことができませんでした。')),
               );
-              try {
-                launched = await launchUrl(
-                  uri,
-                  mode: LaunchMode.externalApplication,
-                );
-                if (!launched) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('ライセンスの詳細ページを開くことができませんでした。')),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('外部ブラウザで開きました。')),
-                  );
-                }
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('ライセンスの詳細ページを開くことができませんでした。')),
-                );
-              }
             }
-          },
-          child: Text(
-            'ライセンス: $abbreviation', // 略称を表示
+          }
+        } catch (e) {
+          // 例外が発生した場合も外部ブラウザを試みる前にSnackBarを表示
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('エラーが発生しました。外部ブラウザで開きます。')),
+          );
+          try {
+            launched = await launchUrl(
+              uri,
+              mode: LaunchMode.externalApplication,
+            );
+            if (!launched) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('ライセンスの詳細ページを開くことができませんでした。')),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('外部ブラウザで開きました。')),
+              );
+            }
+          } catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('ライセンスの詳細ページを開くことができませんでした。')),
+            );
+          }
+        }
+      },
+      child: Row(
+        children: [
+          Icon(iconData, color: iconColor, size: 20),
+          const SizedBox(width: 4),
+          Text(
+            abbreviation, // 略称を表示
             style: TextStyle(
               color: Colors.blue,
               decoration: TextDecoration.underline,
-              fontSize: 16,
+              fontSize: 14,
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -132,17 +132,57 @@ class DetailScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              SelectableText('言語: ${repository.language}'),
-              const SizedBox(height: 8),
-              SelectableText('Stars: ${repository.stargazersCount}'),
-              const SizedBox(height: 8),
-              SelectableText('Watchers: ${repository.watchersCount}'),
-              const SizedBox(height: 8),
-              SelectableText('Forks: ${repository.forksCount}'),
-              const SizedBox(height: 8),
-              SelectableText('Issues: ${repository.openIssuesCount}'),
-              const SizedBox(height: 8),
-              _buildLicenseInfo(context, repository.licenseName), // ライセンス情報をアイコン付きで表示
+
+              // 変更開始: コンパクトなアイコン表示に変更
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  // 言語
+                  Row(
+                    children: [
+                      Icon(Icons.code, size: 20, color: Colors.grey[700]),
+                      const SizedBox(width: 4),
+                      Text(repository.language ?? 'N/A'),
+                    ],
+                  ),
+                  // Stars
+                  Row(
+                    children: [
+                      Icon(Icons.star, size: 20, color: Colors.amber),
+                      const SizedBox(width: 4),
+                      Text('${repository.stargazersCount}'),
+                    ],
+                  ),
+                  // Watchers
+                  Row(
+                    children: [
+                      Icon(Icons.remove_red_eye, size: 20, color: Colors.blueGrey),
+                      const SizedBox(width: 4),
+                      Text('${repository.watchersCount}'),
+                    ],
+                  ),
+                  // Forks
+                  Row(
+                    children: [
+                      Icon(Icons.call_split, size: 20, color: Colors.green),
+                      const SizedBox(width: 4),
+                      Text('${repository.forksCount}'),
+                    ],
+                  ),
+                  // Issues
+                  Row(
+                    children: [
+                      Icon(Icons.error_outline, size: 20, color: Colors.redAccent),
+                      const SizedBox(width: 4),
+                      Text('${repository.openIssuesCount}'),
+                    ],
+                  ),
+                  // ライセンス
+                  _buildLicenseInfo(context, repository.licenseName),
+                ],
+              ),
+              // 変更終了
+
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () async {
