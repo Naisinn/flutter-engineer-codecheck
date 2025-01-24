@@ -45,4 +45,29 @@ class GitHubApiService {
       throw Exception('Failed to load repositories: ${response.statusCode} ${response.reasonPhrase}');
     }
   }
+
+  /// 指定したリポジトリのREADMEを取得するメソッド
+  Future<String> fetchReadme(String owner, String repo) async {
+    final url = Uri.parse('$baseUrl/repos/$owner/$repo/readme');
+
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+
+      // content フィールドがBase64エンコードされたREADMEの内容
+      String base64Content = data['content'];
+
+      // 改行文字を削除
+      base64Content = base64Content.replaceAll('\n', '');
+
+      // Base64をデコードしてUTF-8文字列に変換
+      final decodedBytes = base64.decode(base64Content);
+      final readmeContent = utf8.decode(decodedBytes);
+
+      return readmeContent;
+    } else {
+      // エラー時は例外を投げる
+      throw Exception('Failed to fetch README: ${response.statusCode} ${response.reasonPhrase}');
+    }
+  }
 }

@@ -2,8 +2,9 @@
 
 import 'package:flutter/material.dart';
 import '../models/repository.dart';
-import '../utils/license_utils.dart'; // 追加
-import 'package:url_launcher/url_launcher.dart'; // 追加
+import '../utils/license_utils.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../services/github_api_service.dart'; // README取得用に追加
 
 class DetailScreen extends StatelessWidget {
   final Repository repository;
@@ -116,6 +117,28 @@ class DetailScreen extends StatelessWidget {
                   }
                 },
                 child: const Text('GitHubで開く'),
+              ),
+              const SizedBox(height: 24), // README表示との間隔調整
+
+              FutureBuilder<String>(
+                future: GitHubApiService().fetchReadme(
+                  repository.ownerName,
+                  repository.name,
+                ),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Text(
+                      'READMEを取得できませんでした: ${snapshot.error}',
+                      style: const TextStyle(color: Colors.red),
+                    );
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Text('READMEがありません。');
+                  } else {
+                    return Text(snapshot.data!);
+                  }
+                },
               ),
             ],
           ),
