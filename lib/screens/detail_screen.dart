@@ -87,6 +87,7 @@ class DetailScreen extends StatelessWidget {
         }
       },
       child: Row(
+        mainAxisSize: MainAxisSize.min, // Rowが必要最小限の幅を取るように設定
         children: [
           Icon(iconData, color: iconColor, size: 20),
           const SizedBox(width: 4),
@@ -131,6 +132,7 @@ class DetailScreen extends StatelessWidget {
         );
       },
       child: Row(
+        mainAxisSize: MainAxisSize.min, // Rowが必要最小限の幅を取るように設定
         children: [
           Icon(icon, size: 20, color: iconColor),
           const SizedBox(width: 4),
@@ -170,55 +172,62 @@ class DetailScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // 変更開始: コンパクトなアイコン表示に変更 + 吹き出し説明機能追加
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // 言語
-                  _buildAttributeItem(
-                    context: context,
-                    icon: Icons.code,
-                    iconColor: Colors.grey[700]!,
-                    text: repository.language ?? 'N/A',
-                    description: '言語: このリポジトリで主に使用されているプログラミング言語です。',
-                  ),
-                  // Stars
-                  _buildAttributeItem(
-                    context: context,
-                    icon: Icons.star,
-                    iconColor: Colors.amber,
-                    text: '${repository.stargazersCount}',
-                    description: 'Stars: このリポジトリにスターを付けたユーザーの数です。',
-                  ),
-                  // Watchers
-                  _buildAttributeItem(
-                    context: context,
-                    icon: Icons.remove_red_eye,
-                    iconColor: Colors.blueGrey,
-                    text: '${repository.watchersCount}',
-                    description: 'Watchers: このリポジトリをウォッチしているユーザーの数です。',
-                  ),
-                  // Forks
-                  _buildAttributeItem(
-                    context: context,
-                    icon: Icons.call_split,
-                    iconColor: Colors.green,
-                    text: '${repository.forksCount}',
-                    description: 'Forks: このリポジトリがフォークされた回数です。',
-                  ),
-                  // Issues
-                  _buildAttributeItem(
-                    context: context,
-                    icon: Icons.error_outline,
-                    iconColor: Colors.redAccent,
-                    text: '${repository.openIssuesCount}',
-                    description: 'Issues: このリポジトリの現在開いている課題の数です。',
-                  ),
-                  // ライセンス
-                  _buildLicenseInfo(context, repository.licenseName),
-                ],
+              Center( // 追加: WrapをCenterでラップ
+                child: Wrap(
+                  alignment: WrapAlignment.center, // 中央揃えに設定
+                  spacing: 16.0, // アイテム間の水平スペース
+                  runSpacing: 8.0, // 行間の垂直スペース
+                  children: [
+                    // Stars
+                    _buildAttributeItem(
+                      context: context,
+                      icon: Icons.star,
+                      iconColor: Colors.amber,
+                      text: '${repository.stargazersCount}',
+                      description:
+                      'Stars: このリポジトリにスターを付けたユーザーの数です。',
+                    ),
+                    // Watchers
+                    _buildAttributeItem(
+                      context: context,
+                      icon: Icons.remove_red_eye,
+                      iconColor: Colors.blueGrey,
+                      text: '${repository.watchersCount}',
+                      description:
+                      'Watchers: このリポジトリをウォッチしているユーザーの数です。',
+                    ),
+                    // Forks
+                    _buildAttributeItem(
+                      context: context,
+                      icon: Icons.call_split,
+                      iconColor: Colors.green,
+                      text: '${repository.forksCount}',
+                      description:
+                      'Forks: このリポジトリがフォークされた回数です。',
+                    ),
+                    // Issues
+                    _buildAttributeItem(
+                      context: context,
+                      icon: Icons.error_outline,
+                      iconColor: Colors.redAccent,
+                      text: '${repository.openIssuesCount}',
+                      description:
+                      'Issues: このリポジトリの現在開いている課題の数です。',
+                    ),
+                    // 言語
+                    _buildAttributeItem(
+                      context: context,
+                      icon: Icons.code,
+                      iconColor: Colors.grey[700]!,
+                      text: repository.language ?? 'N/A',
+                      description:
+                      '言語: このリポジトリで主に使用されているプログラミング言語です。',
+                    ),
+                    // ライセンス
+                    _buildLicenseInfo(context, repository.licenseName),
+                  ],
+                ),
               ),
-              // 変更終了
 
               const SizedBox(height: 16),
               ElevatedButton(
