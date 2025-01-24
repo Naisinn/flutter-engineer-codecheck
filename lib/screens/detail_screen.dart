@@ -6,6 +6,7 @@ import '../utils/license_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/github_api_service.dart'; // README取得用に追加
 import 'package:flutter_markdown/flutter_markdown.dart'; // 追加: flutter_markdown パッケージのインポート
+import 'package:flutter_svg/flutter_svg.dart'; // 追加: flutter_svg パッケージのインポート
 
 class DetailScreen extends StatelessWidget {
   final Repository repository;
@@ -224,9 +225,9 @@ class DetailScreen extends StatelessWidget {
                     );
 
                     readmeContent = readmeContent.replaceAllMapped(imageRegExp, (match) {
-                      final imageUrl = match.group(1) ?? '';
-                      final altText = match.group(2) ?? '';
-                      final targetUrl = match.group(3) ?? '';
+                      final imageUrl = match.group(1)?.trim() ?? '';
+                      final altText = match.group(2)?.trim() ?? '';
+                      final targetUrl = match.group(3)?.trim() ?? '';
                       return '[![$altText]($imageUrl)]($targetUrl)';
                     });
 
@@ -291,7 +292,9 @@ class DetailScreen extends StatelessWidget {
                       multiLine: true,
                     );
                     readmeContent = readmeContent.replaceAllMapped(codeBlockRegExp, (match) {
-                      final code = match.group(1)?.replaceAll(RegExp(r'^\s{4}', multiLine: true), '') ?? '';
+                      final code = match.group(1)
+                          ?.replaceAll(RegExp(r'^\s{4}', multiLine: true), '') ??
+                          '';
                       return '```\n$code\n```\n';
                     });
 
@@ -339,16 +342,27 @@ class DetailScreen extends StatelessWidget {
                         }
                       },
                       imageBuilder: (uri, title, alt) {
-                        // 画像のURLが相対パスの場合、リポジトリのベースURLを使用して絶対URLを生成
                         final String imageUrl = uri.isAbsolute
                             ? uri.toString()
                             : Uri.parse(readmeBaseUrl).resolve(uri.toString()).toString();
-                        return Image.network(
-                          imageUrl,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Text('画像を読み込めませんでした: ${alt ?? 'Unknown Image'}');
-                          },
-                        );
+
+                        if (imageUrl.toLowerCase().endsWith('.svg')) {
+                          return SvgPicture.network(
+                            imageUrl,
+                            placeholderBuilder: (context) => CircularProgressIndicator(),
+                            // エラーハンドリング
+                            // svg picture では errorBuilder がサポートされていないため、以下のように try-catch でラップすることはできません。
+                            // 代わりにエラーハンドリングの代替手段を検討する必要があります。
+                            // 現在は placeholderBuilder を利用しているため、簡易的なエラーハンドリングとしています。
+                          );
+                        } else {
+                          return Image.network(
+                            imageUrl,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Text('画像を読み込めませんでした: ${alt ?? 'Unknown Image'}');
+                            },
+                          );
+                        }
                       },
                     );
                   }
