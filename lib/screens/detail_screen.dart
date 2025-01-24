@@ -103,6 +103,43 @@ class DetailScreen extends StatelessWidget {
     );
   }
 
+  // 新規追加: ヘルパーメソッドで属性情報のウィジェットを生成
+  Widget _buildAttributeItem({
+    required BuildContext context,
+    required IconData icon,
+    required Color iconColor,
+    required String text,
+    required String description,
+  }) {
+    return InkWell(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              content: Text(description),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // ダイアログを閉じる
+                  },
+                  child: Text('閉じる'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: iconColor),
+          const SizedBox(width: 4),
+          Text(text),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // README のベース URLを設定（画像の相対パスを絶対パスに変換するため）
@@ -133,49 +170,49 @@ class DetailScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // 変更開始: コンパクトなアイコン表示に変更
+              // 変更開始: コンパクトなアイコン表示に変更 + 吹き出し説明機能追加
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   // 言語
-                  Row(
-                    children: [
-                      Icon(Icons.code, size: 20, color: Colors.grey[700]),
-                      const SizedBox(width: 4),
-                      Text(repository.language ?? 'N/A'),
-                    ],
+                  _buildAttributeItem(
+                    context: context,
+                    icon: Icons.code,
+                    iconColor: Colors.grey[700]!,
+                    text: repository.language ?? 'N/A',
+                    description: '言語: このリポジトリで主に使用されているプログラミング言語です。',
                   ),
                   // Stars
-                  Row(
-                    children: [
-                      Icon(Icons.star, size: 20, color: Colors.amber),
-                      const SizedBox(width: 4),
-                      Text('${repository.stargazersCount}'),
-                    ],
+                  _buildAttributeItem(
+                    context: context,
+                    icon: Icons.star,
+                    iconColor: Colors.amber,
+                    text: '${repository.stargazersCount}',
+                    description: 'Stars: このリポジトリにスターを付けたユーザーの数です。',
                   ),
                   // Watchers
-                  Row(
-                    children: [
-                      Icon(Icons.remove_red_eye, size: 20, color: Colors.blueGrey),
-                      const SizedBox(width: 4),
-                      Text('${repository.watchersCount}'),
-                    ],
+                  _buildAttributeItem(
+                    context: context,
+                    icon: Icons.remove_red_eye,
+                    iconColor: Colors.blueGrey,
+                    text: '${repository.watchersCount}',
+                    description: 'Watchers: このリポジトリをウォッチしているユーザーの数です。',
                   ),
                   // Forks
-                  Row(
-                    children: [
-                      Icon(Icons.call_split, size: 20, color: Colors.green),
-                      const SizedBox(width: 4),
-                      Text('${repository.forksCount}'),
-                    ],
+                  _buildAttributeItem(
+                    context: context,
+                    icon: Icons.call_split,
+                    iconColor: Colors.green,
+                    text: '${repository.forksCount}',
+                    description: 'Forks: このリポジトリがフォークされた回数です。',
                   ),
                   // Issues
-                  Row(
-                    children: [
-                      Icon(Icons.error_outline, size: 20, color: Colors.redAccent),
-                      const SizedBox(width: 4),
-                      Text('${repository.openIssuesCount}'),
-                    ],
+                  _buildAttributeItem(
+                    context: context,
+                    icon: Icons.error_outline,
+                    iconColor: Colors.redAccent,
+                    text: '${repository.openIssuesCount}',
+                    description: 'Issues: このリポジトリの現在開いている課題の数です。',
                   ),
                   // ライセンス
                   _buildLicenseInfo(context, repository.licenseName),
