@@ -5,6 +5,7 @@ import '../models/repository.dart';
 import '../utils/license_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/github_api_service.dart'; // README取得用に追加
+import 'package:flutter_markdown/flutter_markdown.dart'; // 追加: flutter_markdown パッケージのインポート
 
 class DetailScreen extends StatelessWidget {
   final Repository repository;
@@ -76,6 +77,10 @@ class DetailScreen extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('ライセンスの詳細ページを開くことができませんでした。')),
                   );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('外部ブラウザで開きました。')),
+                  );
                 }
               } catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -99,6 +104,9 @@ class DetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // README のベース URLを設定（画像の相対パスを絶対パスに変換するため）
+    final String readmeBaseUrl = 'https://raw.githubusercontent.com/${repository.ownerName}/${repository.name}/main/';
+
     return Scaffold(
       appBar: AppBar(
         title: Text(repository.name),
@@ -174,6 +182,10 @@ class DetailScreen extends StatelessWidget {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('URL を開くことができませんでした。')),
                         );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('外部ブラウザで開きました。')),
+                        );
                       }
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -202,7 +214,57 @@ class DetailScreen extends StatelessWidget {
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return const Text('READMEがありません。');
                   } else {
-                    return Text(snapshot.data!);
+                    final String readmeContent = snapshot.data!;
+
+                    return MarkdownBody( // 変更: Text を MarkdownBody に変更
+                      data: readmeContent,
+                      onTapLink: (text, href, title) async {
+                        if (href != null) {
+                          final uri = Uri.parse(href);
+                          bool launched = false;
+                          try {
+                            launched = await launchUrl(
+                              uri,
+                              mode: LaunchMode.inAppWebView,
+                            );
+                            if (!launched) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('内部ブラウザで開けなかったため、外部ブラウザで開きます。')),
+                              );
+                              launched = await launchUrl(
+                                uri,
+                                mode: LaunchMode.externalApplication,
+                              );
+                              if (!launched) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('リンクを開くことができませんでした。')),
+                                );
+                              }
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('リンクを開きました。')),
+                              );
+                            }
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('エラーが発生しました。リンクを開けません。')),
+                            );
+                          }
+                        }
+                      },
+                      imageBuilder: (uri, title, alt) { // 追加: 画像のビルダーをカスタマイズ
+                        // 画像のURLが相対パスの場合、リポジトリのベースURLを使用して絶対URLを生成
+                        final String imageUrl = uri.isAbsolute
+                            ? uri.toString()
+                            : Uri.parse(readmeBaseUrl).resolve(uri.toString()).toString();
+                        return Image.network(
+                          imageUrl,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Text('画像を読み込めませんでした: ${alt ?? 'Unknown Image'}');
+                          },
+                        );
+                      },
+                    );
                   }
                 },
               ),
