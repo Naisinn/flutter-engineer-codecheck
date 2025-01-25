@@ -1,6 +1,7 @@
 // screens/search_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../providers/repository_provider.dart';
 import '../widgets/repository_list_item.dart';
 import '../utils/constants.dart'; // 言語リストをインポート
@@ -101,25 +102,24 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<RepositoryProvider>(context);
+    final loc = AppLocalizations.of(context)!;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('GitHub Search'),
-        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-      ),
+      appBar: AppBar(title: Text(loc.appTitle)),
       body: ListView(
         padding: const EdgeInsets.all(8.0),
         children: [
           // 折りたたみ可能な検索フォーム
           ExpansionTile(
-            title: const Text('検索フォーム'),
+            title: Text(loc.searchForm),
             initiallyExpanded: true, // 初期状態で展開する場合は true に設定
             children: [
               // 基本検索項目
               TextField(
                 controller: _queryController,
-                decoration: const InputDecoration(
-                  labelText: '検索キーワード',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: loc.searchKeyword,
+                  border: const OutlineInputBorder(),
                 ),
                 onSubmitted: (_) => _search(),
               ),
@@ -127,16 +127,16 @@ class _SearchScreenState extends State<SearchScreen> {
 
               // 折りたたみ可能な高度な検索項目
               ExpansionTile(
-                title: const Text('高度な検索オプション'),
+                title: Text(loc.advancedSearchOptions),
                 initiallyExpanded: false,
                 children: [
                   const SizedBox(height: 8),
                   // オーナー名入力フィールド
                   TextField(
                     controller: _ownerController,
-                    decoration: const InputDecoration(
-                      labelText: 'オーナー名（任意）',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: loc.ownerNameOptional,
+                      border: const OutlineInputBorder(),
                     ),
                     onSubmitted: (_) => _search(),
                   ),
@@ -145,9 +145,9 @@ class _SearchScreenState extends State<SearchScreen> {
                   // 言語選択用プルダウン
                   DropdownButtonFormField<String>(
                     value: _selectedLanguage,
-                    decoration: const InputDecoration(
-                      labelText: '言語（任意）',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: loc.languageOptional,
+                      border: const OutlineInputBorder(),
                     ),
                     items: programmingLanguages.map((lang) {
                       return DropdownMenuItem<String>(
@@ -166,9 +166,9 @@ class _SearchScreenState extends State<SearchScreen> {
                   // ライセンス選択用プルダウン
                   DropdownButtonFormField<String>(
                     value: _selectedLicense,
-                    decoration: const InputDecoration(
-                      labelText: 'ライセンス（任意）',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: loc.licenseOptional,
+                      border: const OutlineInputBorder(),
                     ),
                     items: _licenseOptions.map((license) {
                       return DropdownMenuItem<String>(
@@ -187,9 +187,9 @@ class _SearchScreenState extends State<SearchScreen> {
                   // ソート基準選択用プルダウン（日本語）
                   DropdownButtonFormField<String>(
                     value: _selectedSort,
-                    decoration: const InputDecoration(
-                      labelText: 'ソート基準（任意）',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: loc.sortCriteriaOptional,
+                      border: const OutlineInputBorder(),
                     ),
                     items: _sortOptions.map((sort) {
                       return DropdownMenuItem<String>(
@@ -210,9 +210,9 @@ class _SearchScreenState extends State<SearchScreen> {
                   // ソート順選択用プルダウン（日本語）
                   DropdownButtonFormField<String>(
                     value: _selectedOrder,
-                    decoration: const InputDecoration(
-                      labelText: 'ソート順（任意）',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: loc.sortOrderOptional,
+                      border: const OutlineInputBorder(),
                     ),
                     items: _sortOrderOptions.map((order) {
                       return DropdownMenuItem<String>(
@@ -237,7 +237,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _search,
-                  child: const Text('検索'),
+                  child: Text(loc.searchButton),
                 ),
               ),
               const SizedBox(height: 16),
@@ -252,7 +252,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
                     provider.errorMessage!,
-                    style: TextStyle(color: Theme.of(context).colorScheme.error),
+                    style: const TextStyle(color: Colors.red),
                   ),
                 ),
             ],
