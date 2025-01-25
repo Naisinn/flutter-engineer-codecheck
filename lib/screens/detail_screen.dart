@@ -251,77 +251,92 @@ class DetailScreen extends StatelessWidget {
               ),
 
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () async {
-                  final uri = Uri.parse(repository.htmlUrl);
-                  bool launched = false;
-                  try {
-                    // 内部ブラウザで開くことを試みる
-                    launched = await launchUrl(
-                      uri,
-                      mode: LaunchMode.inAppWebView,
-                    );
-                    if (!launched) {
-                      // 内部ブラウザで開けなかった場合、SnackBarを表示してから外部ブラウザを開く
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(loc.snackbarOpenExternal),
-                          backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
-                        ),
-                      );
-                      launched = await launchUrl(
-                        uri,
-                        mode: LaunchMode.externalApplication,
-                      );
-                      if (!launched) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(loc.snackbarUrlFail),
-                            backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
-                          ),
-                        );
-                      }
-                    }
-                  } catch (e) {
-                    // 例外が発生した場合も外部ブラウザを試みる前にSnackBarを表示
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(loc.snackbarErrorAndOpenExternal),
-                        backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
-                      ),
-                    );
+              Center(
+                child: ElevatedButton(
+                  onPressed: () async {
+                    final uri = Uri.parse(repository.htmlUrl);
+                    bool launched = false;
                     try {
+                      // 内部ブラウザで開くことを試みる
                       launched = await launchUrl(
                         uri,
-                        mode: LaunchMode.externalApplication,
+                        mode: LaunchMode.inAppWebView,
                       );
                       if (!launched) {
+                        // 内部ブラウザで開けなかった場合、SnackBarを表示してから外部ブラウザを開く
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(loc.snackbarUrlFail),
+                            content: Text(loc.snackbarOpenExternal),
                             backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
                           ),
                         );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(loc.snackbarOpenedExternal),
-                            backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
-                          ),
+                        launched = await launchUrl(
+                          uri,
+                          mode: LaunchMode.externalApplication,
                         );
+                        if (!launched) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(loc.snackbarUrlFail),
+                              backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                            ),
+                          );
+                        }
                       }
                     } catch (e) {
+                      // 例外が発生した場合も外部ブラウザを試みる前にSnackBarを表示
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(loc.snackbarUrlFail),
+                          content: Text(loc.snackbarErrorAndOpenExternal),
                           backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
                         ),
                       );
+                      try {
+                        launched = await launchUrl(
+                          uri,
+                          mode: LaunchMode.externalApplication,
+                        );
+                        if (!launched) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(loc.snackbarUrlFail),
+                              backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(loc.snackbarOpenedExternal),
+                              backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(loc.snackbarUrlFail),
+                            backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                          ),
+                        );
+                      }
                     }
-                  }
-                },
-                child: Text(loc.openInGitHub),
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/github-mark.svg',
+                        width: 20,
+                        height: 20,
+                        color: Theme.of(context).iconTheme.color, // アイコンの色を設定
+                      ),
+                      const SizedBox(width: 8),
+                      Text(loc.openInGitHub),
+                    ],
+                  ),
+                ),
               ),
+
               const SizedBox(height: 24),
 
               FutureBuilder<String>(
