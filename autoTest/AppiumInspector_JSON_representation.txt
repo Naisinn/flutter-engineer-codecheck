@@ -1,0 +1,7 @@
+{
+  "platformName": "Android",
+  "platformVersion":"16"
+  "deviceName": "emulator-5554",
+  "automationName": "Appium",
+  "app": "/Users/nanaki/AndroidStudioProjects/flutter-engineer-codecheck/build/app/outputs/flutter-apk/app-debug.apk"
+}
