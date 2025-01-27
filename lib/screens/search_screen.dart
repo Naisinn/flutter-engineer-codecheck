@@ -10,9 +10,10 @@ import 'detail_screen.dart';
 
 /// リポジトリを検索する画面
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({Key? key}) : super(key: key);
+  const SearchScreen({super.key}); // super パラメータ
 
   @override
+  // ignore: library_private_types_in_public_api
   _SearchScreenState createState() => _SearchScreenState();
 }
 
@@ -35,10 +36,8 @@ class _SearchScreenState extends State<SearchScreen> {
           license) => license['abbreviation'] as String).toList();
 
   // ソートオプションとソート順のリスト（日本語）
-  final List<String> _sortOptions = sortOptions.keys
-      .toList(); // 'ベストマッチ', 'スター数', 'フォーク数', 'ヘルプが必要なイシュー数', '更新日時'
-  final List<String> _sortOrderOptions = sortOrderOptions.keys
-      .toList(); // '降順', '昇順'
+  final List<String> _sortOptions = sortOptions.keys.toList();
+  final List<String> _sortOrderOptions = sortOrderOptions.keys.toList();
 
   /// 検索を実行するメソッド
   void _search() {
@@ -69,7 +68,7 @@ class _SearchScreenState extends State<SearchScreen> {
     if (_selectedSort != null && _selectedSort != 'ベストマッチ') {
       sort = sortOptions[_selectedSort!];
     } else {
-      sort = null; // 'ベストマッチ' の場合はソート基準を指定しない
+      sort = null;
     }
 
     // ソート順の変換（日本語ラベルからAPIキーへ）
@@ -112,10 +111,11 @@ class _SearchScreenState extends State<SearchScreen> {
           // 折りたたみ可能な検索フォーム
           ExpansionTile(
             title: Text(loc.searchForm),
-            initiallyExpanded: true, // 初期状態で展開する場合は true に設定
+            initiallyExpanded: true,
             children: [
               // 基本検索項目
               TextField(
+                key: const ValueKey('SearchKeywordTextField'), // ★追加
                 controller: _queryController,
                 decoration: InputDecoration(
                   labelText: loc.searchKeyword,
@@ -200,7 +200,6 @@ class _SearchScreenState extends State<SearchScreen> {
                     onChanged: (newValue) {
                       setState(() {
                         _selectedSort = newValue;
-                        // ソート順の初期値をリセット（例: '降順'）
                         _selectedOrder = '降順';
                       });
                     },
@@ -236,6 +235,7 @@ class _SearchScreenState extends State<SearchScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
+                  key: const ValueKey('SearchButton'), // ★追加
                   onPressed: _search,
                   child: Text(loc.searchButton),
                 ),
@@ -260,20 +260,20 @@ class _SearchScreenState extends State<SearchScreen> {
 
           // 検索結果リスト
           if (!provider.isLoading && provider.repositories.isNotEmpty)
-            ...provider.repositories.map((repo) =>
-                RepositoryListItem(
-                  repository: repo,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DetailScreen(repository: repo),
-                      ),
-                    );
-                  },
-                )).toList(),
+            ...provider.repositories.map((repo) => RepositoryListItem(
+              repository: repo,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DetailScreen(repository: repo),
+                  ),
+                );
+              },
+            ))
         ],
       ),
     );
   }
 }
+
