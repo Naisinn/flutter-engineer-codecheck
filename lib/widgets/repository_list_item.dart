@@ -1,5 +1,4 @@
 // widgets/repository_list_item.dart
-
 import 'package:flutter/material.dart';
 import '../models/repository.dart';
 import '../utils/license_utils.dart'; // 追加
@@ -9,7 +8,7 @@ class RepositoryListItem extends StatelessWidget {
   final Repository repository;
   final VoidCallback onTap;
 
-  const RepositoryListItem({Key? key, required this.repository, required this.onTap}) : super(key: key);
+  const RepositoryListItem({super.key, required this.repository, required this.onTap}); // 修正: super パラメータ
 
   // 共通のライセンスマッピングを使用するヘルパーメソッド
   Widget _buildLicenseInfo(String licenseName) {
@@ -37,7 +36,8 @@ class RepositoryListItem extends StatelessWidget {
         Container(
           padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           decoration: BoxDecoration(
-            color: iconColor.withOpacity(0.1),
+            // color: iconColor.withOpacity(0.1), // 修正: withOpacity → withAlpha
+            color: iconColor.withAlpha(25), // 0.1 * 255 ≈ 25
             borderRadius: BorderRadius.circular(4),
           ),
           child: Text(
@@ -64,7 +64,7 @@ class RepositoryListItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(repository.language), // 言語をサブタイトルとして表示
+          Text(repository.language), // 修正: ?? loc.notAvailable を削除
           Text('オーナー: ${repository.ownerName}'), // オーナー名を追加
           _buildLicenseInfo(repository.licenseName), // ライセンス情報にアイコンと略称を追加
         ],
@@ -82,3 +82,4 @@ class RepositoryListItem extends StatelessWidget {
     );
   }
 }
+

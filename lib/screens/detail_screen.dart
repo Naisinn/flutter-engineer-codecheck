@@ -11,7 +11,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 class DetailScreen extends StatelessWidget {
   final Repository repository;
 
-  const DetailScreen({Key? key, required this.repository}) : super(key: key);
+  const DetailScreen({super.key, required this.repository}); // 修正: super パラメータ
 
   // 共通のライセンスマッピングを使用するヘルパーメソッド
   Widget _buildLicenseInfo(BuildContext context, String licenseName) {
@@ -37,69 +37,66 @@ class DetailScreen extends StatelessWidget {
 
     return GestureDetector(
       onTap: () async {
+        // 必要な情報を事前に取得
         final loc = AppLocalizations.of(context)!;
+        final messenger = ScaffoldMessenger.of(context);
+        final snackBarThemeColor = Theme.of(context).snackBarTheme.backgroundColor;
+
         final uri = Uri.parse(url);
         bool launched = false;
         try {
-          // 内部ブラウザで開くことを試みる
-          launched = await launchUrl(
-            uri,
-            mode: LaunchMode.inAppWebView,
-          );
+          launched = await launchUrl(uri, mode: LaunchMode.inAppWebView);
+          if (!context.mounted) return;
+
           if (!launched) {
-            // 内部ブラウザで開けなかった場合、SnackBarを表示してから外部ブラウザを開く
-            ScaffoldMessenger.of(context).showSnackBar(
+            messenger.showSnackBar(
               SnackBar(
                 content: Text(loc.snackbarOpenExternal),
-                backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                backgroundColor: snackBarThemeColor,
               ),
             );
-            launched = await launchUrl(
-              uri,
-              mode: LaunchMode.externalApplication,
-            );
+            launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+            if (!context.mounted) return;
             if (!launched) {
-              ScaffoldMessenger.of(context).showSnackBar(
+              messenger.showSnackBar(
                 SnackBar(
                   content: Text(loc.snackbarLicenseFail),
-                  backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                  backgroundColor: snackBarThemeColor,
                 ),
               );
             }
           }
         } catch (e) {
-          // 例外が発生した場合も外部ブラウザを試みる前にSnackBarを表示
-          ScaffoldMessenger.of(context).showSnackBar(
+          if (!context.mounted) return;
+          messenger.showSnackBar(
             SnackBar(
               content: Text(loc.snackbarErrorAndOpenExternal),
-              backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+              backgroundColor: snackBarThemeColor,
             ),
           );
           try {
-            launched = await launchUrl(
-              uri,
-              mode: LaunchMode.externalApplication,
-            );
+            launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+            if (!context.mounted) return;
             if (!launched) {
-              ScaffoldMessenger.of(context).showSnackBar(
+              messenger.showSnackBar(
                 SnackBar(
                   content: Text(loc.snackbarLicenseFail),
-                  backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                  backgroundColor: snackBarThemeColor,
                 ),
               );
             } else {
-              ScaffoldMessenger.of(context).showSnackBar(
+              messenger.showSnackBar(
                 SnackBar(
                   content: Text(loc.snackbarOpenedExternal),
-                  backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                  backgroundColor: snackBarThemeColor,
                 ),
               );
             }
           } catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(
+            messenger.showSnackBar(
               SnackBar(
                 content: Text(loc.snackbarLicenseFail),
-                backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                backgroundColor: snackBarThemeColor,
               ),
             );
           }
@@ -241,7 +238,7 @@ class DetailScreen extends StatelessWidget {
                       context: context,
                       icon: Icons.code,
                       iconColor: Theme.of(context).colorScheme.onSurface,
-                      text: repository.language ?? loc.notAvailable,
+                      text: repository.language, // 修正: ?? loc.notAvailable を削除
                       description: loc.languageDescription,
                     ),
                     // ライセンス
@@ -254,68 +251,65 @@ class DetailScreen extends StatelessWidget {
               Center(
                 child: ElevatedButton(
                   onPressed: () async {
+                    // 必要な情報を事前に取得
+                    final loc = AppLocalizations.of(context)!;
+                    final messenger = ScaffoldMessenger.of(context);
+                    final snackBarThemeColor = Theme.of(context).snackBarTheme.backgroundColor;
+
                     final uri = Uri.parse(repository.htmlUrl);
                     bool launched = false;
                     try {
-                      // 内部ブラウザで開くことを試みる
-                      launched = await launchUrl(
-                        uri,
-                        mode: LaunchMode.inAppWebView,
-                      );
+                      launched = await launchUrl(uri, mode: LaunchMode.inAppWebView);
+                      if (!context.mounted) return;
                       if (!launched) {
-                        // 内部ブラウザで開けなかった場合、SnackBarを表示してから外部ブラウザを開く
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        messenger.showSnackBar(
                           SnackBar(
                             content: Text(loc.snackbarOpenExternal),
-                            backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                            backgroundColor: snackBarThemeColor,
                           ),
                         );
-                        launched = await launchUrl(
-                          uri,
-                          mode: LaunchMode.externalApplication,
-                        );
+                        launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+                        if (!context.mounted) return;
                         if (!launched) {
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          messenger.showSnackBar(
                             SnackBar(
                               content: Text(loc.snackbarUrlFail),
-                              backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                              backgroundColor: snackBarThemeColor,
                             ),
                           );
                         }
                       }
                     } catch (e) {
-                      // 例外が発生した場合も外部ブラウザを試みる前にSnackBarを表示
-                      ScaffoldMessenger.of(context).showSnackBar(
+                      if (!context.mounted) return;
+                      messenger.showSnackBar(
                         SnackBar(
                           content: Text(loc.snackbarErrorAndOpenExternal),
-                          backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                          backgroundColor: snackBarThemeColor,
                         ),
                       );
                       try {
-                        launched = await launchUrl(
-                          uri,
-                          mode: LaunchMode.externalApplication,
-                        );
+                        launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+                        if (!context.mounted) return;
                         if (!launched) {
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          messenger.showSnackBar(
                             SnackBar(
                               content: Text(loc.snackbarUrlFail),
-                              backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                              backgroundColor: snackBarThemeColor,
                             ),
                           );
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
+                          messenger.showSnackBar(
                             SnackBar(
                               content: Text(loc.snackbarOpenedExternal),
-                              backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                              backgroundColor: snackBarThemeColor,
                             ),
                           );
                         }
                       } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        messenger.showSnackBar(
                           SnackBar(
                             content: Text(loc.snackbarUrlFail),
-                            backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
+                            backgroundColor: snackBarThemeColor,
                           ),
                         );
                       }
@@ -328,7 +322,10 @@ class DetailScreen extends StatelessWidget {
                         'assets/github-mark.svg',
                         width: 20,
                         height: 20,
-                        color: Theme.of(context).iconTheme.color, // アイコンの色を設定
+                        colorFilter: ColorFilter.mode( // 修正: color → colorFilter
+                          Theme.of(context).iconTheme.color ?? Colors.black,
+                          BlendMode.srcIn,
+                        ),
                       ),
                       const SizedBox(width: 8),
                       Text(loc.openInGitHub),
@@ -426,49 +423,48 @@ class DetailScreen extends StatelessWidget {
                       data: readmeContent,
                       onTapLink: (text, href, title) async {
                         if (href != null) {
+                          // 必要な情報を事前に取得
+                          final loc = AppLocalizations.of(context)!;
+                          final messenger = ScaffoldMessenger.of(context);
+                          final snackBarThemeColor = Theme.of(context).snackBarTheme.backgroundColor;
+
                           final uri = Uri.parse(href);
                           bool launched = false;
                           try {
-                            launched = await launchUrl(
-                              uri,
-                              mode: LaunchMode.inAppWebView,
-                            );
+                            launched = await launchUrl(uri, mode: LaunchMode.inAppWebView);
+                            if (!context.mounted) return;
+
                             if (!launched) {
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              messenger.showSnackBar(
                                 SnackBar(
                                   content: Text(loc.snackbarOpenExternal),
-                                  backgroundColor:
-                                  Theme.of(context).snackBarTheme.backgroundColor,
+                                  backgroundColor: snackBarThemeColor,
                                 ),
                               );
-                              launched = await launchUrl(
-                                uri,
-                                mode: LaunchMode.externalApplication,
-                              );
+                              launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+                              if (!context.mounted) return;
                               if (!launched) {
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                messenger.showSnackBar(
                                   SnackBar(
                                     content: Text(loc.snackbarLinkFail),
-                                    backgroundColor:
-                                    Theme.of(context).snackBarTheme.backgroundColor,
+                                    backgroundColor: snackBarThemeColor,
                                   ),
                                 );
                               }
                             } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              messenger.showSnackBar(
                                 SnackBar(
                                   content: Text(loc.snackbarOpenedExternal),
-                                  backgroundColor:
-                                  Theme.of(context).snackBarTheme.backgroundColor,
+                                  backgroundColor: snackBarThemeColor,
                                 ),
                               );
                             }
                           } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
+                            if (!context.mounted) return;
+                            messenger.showSnackBar(
                               SnackBar(
                                 content: Text(loc.snackbarLinkError),
-                                backgroundColor:
-                                Theme.of(context).snackBarTheme.backgroundColor,
+                                backgroundColor: snackBarThemeColor,
                               ),
                             );
                           }

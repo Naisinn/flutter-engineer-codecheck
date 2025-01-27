@@ -1,7 +1,7 @@
+//main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart'; // 必要なら追加
 import 'providers/repository_provider.dart';
 import 'screens/search_screen.dart';
 
@@ -20,7 +20,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key}); // 修正: super パラメータ
 
   @override
   Widget build(BuildContext context) {

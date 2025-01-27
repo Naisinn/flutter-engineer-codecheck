@@ -10,9 +10,10 @@ import 'detail_screen.dart';
 
 /// リポジトリを検索する画面
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({Key? key}) : super(key: key);
+  const SearchScreen({super.key}); // 修正: super パラメータ
 
   @override
+  // ignore: library_private_types_in_public_api
   _SearchScreenState createState() => _SearchScreenState();
 }
 
@@ -260,18 +261,17 @@ class _SearchScreenState extends State<SearchScreen> {
 
           // 検索結果リスト
           if (!provider.isLoading && provider.repositories.isNotEmpty)
-            ...provider.repositories.map((repo) =>
-                RepositoryListItem(
-                  repository: repo,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DetailScreen(repository: repo),
-                      ),
-                    );
-                  },
-                )).toList(),
+            ...provider.repositories.map((repo) => RepositoryListItem(
+              repository: repo,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DetailScreen(repository: repo),
+                  ),
+                );
+              },
+            )) // 修正: .toList() を削除
         ],
       ),
     );
