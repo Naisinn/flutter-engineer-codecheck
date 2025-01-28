@@ -1,11 +1,14 @@
-// main.dart
+//main.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'providers/repository_provider.dart';
 import 'screens/search_screen.dart';
 
+// 生成されるローカライズクラス
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 void main() {
-  // Providerを利用してRepositoryProviderをグローバルに提供
   runApp(
     MultiProvider(
       providers: [
@@ -16,18 +19,33 @@ void main() {
   );
 }
 
-/// アプリのルートウィジェット
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key}); // 変更: super.key を使用
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'GitHub Repository Search',
-      theme: ThemeData.light(),   // ライトテーマ
-      darkTheme: ThemeData.dark(), // ダークテーマ
-      home: const SearchScreen(),  // 最初の画面をSearchScreenに設定
-      // 必要に応じて他のルートを設定
+      // アプリのタイトルはローカライズ不要ならハードコードでも可
+      onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
+
+      // ローカライズデリゲートの設定
+      localizationsDelegates: const [
+        AppLocalizations.delegate, // 生成されたローカライズクラス
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en', ''), // 英語
+        Locale('ja', ''), // 日本語
+      ],
+
+      // テーマ設定
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      themeMode: ThemeMode.system,
+
+      home: const SearchScreen(),
     );
   }
 }

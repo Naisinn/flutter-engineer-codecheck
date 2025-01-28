@@ -1,19 +1,81 @@
-// screens/detail_screen.dart
-
+// lib/screens/detail_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../models/repository.dart';
 import '../utils/license_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../services/github_api_service.dart'; // README取得用に追加
-import 'package:flutter_markdown/flutter_markdown.dart'; // 追加: flutter_markdown パッケージのインポート
-import 'package:flutter_svg/flutter_svg.dart'; // 追加: flutter_svg パッケージのインポート
+import '../services/github_api_service.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-class DetailScreen extends StatelessWidget {
+class DetailScreen extends StatefulWidget {
   final Repository repository;
 
-  const DetailScreen({Key? key, required this.repository}) : super(key: key);
+  const DetailScreen({super.key, required this.repository});
 
-  // 共通のライセンスマッピングを使用するヘルパーメソッド
+  @override
+  DetailScreenState createState() => DetailScreenState();
+}
+
+// 公開クラス: "Invalid use of a private type in a public API" を回避するため
+class DetailScreenState extends State<DetailScreen> {
+  // 事前にローカライズ済みのスナックバー用テキストを保存
+  late final String msgOpenExternal;
+  late final String msgLicenseFail;
+  late final String msgErrorAndOpenExternal;
+  late final String msgOpenedExternal;
+  late final String msgUrlFail;
+  late final String msgLinkError;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final loc = AppLocalizations.of(context)!;
+    msgOpenExternal = loc.snackbarOpenExternal;
+    msgLicenseFail = loc.snackbarLicenseFail;
+    msgErrorAndOpenExternal = loc.snackbarErrorAndOpenExternal;
+    msgOpenedExternal = loc.snackbarOpenedExternal;
+    msgUrlFail = loc.snackbarUrlFail;
+    msgLinkError = loc.snackbarLinkError;
+  }
+
+  /// ライセンスリンクをタップした際の処理
+  Future<void> _onLicenseTap(String url) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final uri = Uri.parse(url);
+
+    bool launched = false;
+    try {
+      launched = await launchUrl(uri, mode: LaunchMode.inAppWebView);
+      if (!launched) {
+        if (!mounted) return;
+        messenger.showSnackBar(SnackBar(content: Text(msgOpenExternal)));
+        launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+        if (!launched) {
+          if (!mounted) return;
+          messenger.showSnackBar(SnackBar(content: Text(msgLicenseFail)));
+        }
+      }
+    } catch (e) {
+      if (!mounted) return;
+      messenger.showSnackBar(SnackBar(content: Text(msgErrorAndOpenExternal)));
+      try {
+        launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+        if (!launched) {
+          if (!mounted) return;
+          messenger.showSnackBar(SnackBar(content: Text(msgLicenseFail)));
+        } else {
+          if (!mounted) return;
+          messenger.showSnackBar(SnackBar(content: Text(msgOpenedExternal)));
+        }
+      } catch (e) {
+        if (!mounted) return;
+        messenger.showSnackBar(SnackBar(content: Text(msgLicenseFail)));
+      }
+    }
+  }
+
+  /// 共通のライセンスマッピングを使用するヘルパーメソッド
   Widget _buildLicenseInfo(BuildContext context, String licenseName) {
     final licenseKey = licenseName.toLowerCase();
     final licenseData = LicenseUtils.licenseMap[licenseKey];
@@ -30,83 +92,110 @@ class DetailScreen extends StatelessWidget {
       abbreviation = licenseData['abbreviation'];
     } else {
       iconData = Icons.help_outline;
-      iconColor = Colors.grey;
+      iconColor = Theme.of(context).colorScheme.onSurface;
       url = 'https://choosealicense.com/licenses/';
       abbreviation = 'Unknown';
     }
 
-    return Row(
-      children: [
-        Icon(iconData, color: iconColor),
-        const SizedBox(width: 8),
-        GestureDetector(
-          onTap: () async {
-            final uri = Uri.parse(url);
-            bool launched = false;
-            try {
-              // 内部ブラウザで開くことを試みる
-              launched = await launchUrl(
-                uri,
-                mode: LaunchMode.inAppWebView,
-              );
-              if (!launched) {
-                // 内部ブラウザで開けなかった場合、SnackBarを表示してから外部ブラウザを開く
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('内部ブラウザで開けなかったため、外部ブラウザで開きます。')),
-                );
-                launched = await launchUrl(
-                  uri,
-                  mode: LaunchMode.externalApplication,
-                );
-                if (!launched) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('ライセンスの詳細ページを開くことができませんでした。')),
-                  );
-                }
-              }
-            } catch (e) {
-              // 例外が発生した場合も外部ブラウザを試みる前にSnackBarを表示
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('エラーが発生しました。外部ブラウザで開きます。')),
-              );
-              try {
-                launched = await launchUrl(
-                  uri,
-                  mode: LaunchMode.externalApplication,
-                );
-                if (!launched) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('ライセンスの詳細ページを開くことができませんでした。')),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('外部ブラウザで開きました。')),
-                  );
-                }
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('ライセンスの詳細ページを開くことができませんでした。')),
-                );
-              }
-            }
-          },
-          child: SelectableText(
-            'ライセンス: $abbreviation', // 略称を表示
+    return GestureDetector(
+      onTap: () => _onLicenseTap(url),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(iconData, color: iconColor, size: 20),
+          const SizedBox(width: 4),
+          Text(
+            abbreviation,
             style: TextStyle(
-              color: Colors.blue,
+              color: Theme.of(context).colorScheme.primary,
               decoration: TextDecoration.underline,
-              fontSize: 16,
+              fontSize: 14,
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
+  }
+
+  /// 属性情報を表示するヘルパーメソッド
+  Widget _buildAttributeItem({
+    required BuildContext context,
+    required IconData icon,
+    required Color iconColor,
+    required String text,
+    required String description,
+  }) {
+    final loc = AppLocalizations.of(context)!;
+    return InkWell(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (c) {
+            return AlertDialog(
+              content: Text(description),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(c).pop(),
+                  child: Text(loc.close),
+                ),
+              ],
+            );
+          },
+        );
+      },
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 20, color: iconColor),
+          const SizedBox(width: 4),
+          Text(text),
+        ],
+      ),
+    );
+  }
+
+  /// リポジトリURLを開くボタン押下時の処理
+  Future<void> _openRepositoryUrl() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final uri = Uri.parse(widget.repository.htmlUrl);
+
+    bool launched = false;
+    try {
+      launched = await launchUrl(uri, mode: LaunchMode.inAppWebView);
+      if (!launched) {
+        if (!mounted) return;
+        messenger.showSnackBar(SnackBar(content: Text(msgOpenExternal)));
+        launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+        if (!launched) {
+          if (!mounted) return;
+          messenger.showSnackBar(SnackBar(content: Text(msgUrlFail)));
+        }
+      }
+    } catch (e) {
+      if (!mounted) return;
+      messenger.showSnackBar(SnackBar(content: Text(msgErrorAndOpenExternal)));
+      try {
+        launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+        if (!launched) {
+          if (!mounted) return;
+          messenger.showSnackBar(SnackBar(content: Text(msgUrlFail)));
+        } else {
+          if (!mounted) return;
+          messenger.showSnackBar(SnackBar(content: Text(msgOpenedExternal)));
+        }
+      } catch (e) {
+        if (!mounted) return;
+        messenger.showSnackBar(SnackBar(content: Text(msgUrlFail)));
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // README のベース URLを設定（画像の相対パスを絶対パスに変換するため）
-    final String readmeBaseUrl = 'https://raw.githubusercontent.com/${repository.ownerName}/${repository.name}/HEAD/';
+    final loc = AppLocalizations.of(context)!;
+    final repository = widget.repository; // ローカル変数に取り出し
+    final String readmeBaseUrl =
+        'https://raw.githubusercontent.com/${repository.ownerName}/${repository.name}/HEAD/';
 
     return Scaffold(
       appBar: AppBar(
@@ -116,7 +205,7 @@ class DetailScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start, // 左揃えに変更
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
                 child: CircleAvatar(
@@ -124,80 +213,96 @@ class DetailScreen extends StatelessWidget {
                   radius: 40,
                 ),
               ),
-              const SizedBox(height: 8), // サイズ調整
+              const SizedBox(height: 8),
               Center(
                 child: SelectableText(
-                  'オーナー: ${repository.ownerName}', // 追加
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  loc.ownerLabel(repository.ownerName),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
-              SelectableText('言語: ${repository.language}'),
-              const SizedBox(height: 8),
-              SelectableText('Stars: ${repository.stargazersCount}'),
-              const SizedBox(height: 8),
-              SelectableText('Watchers: ${repository.watchersCount}'),
-              const SizedBox(height: 8),
-              SelectableText('Forks: ${repository.forksCount}'),
-              const SizedBox(height: 8),
-              SelectableText('Issues: ${repository.openIssuesCount}'),
-              const SizedBox(height: 8),
-              _buildLicenseInfo(context, repository.licenseName), // ライセンス情報をアイコン付きで表示
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () async {
-                  final uri = Uri.parse(repository.htmlUrl);
-                  bool launched = false;
-                  try {
-                    // 内部ブラウザで開くことを試みる
-                    launched = await launchUrl(
-                      uri,
-                      mode: LaunchMode.inAppWebView,
-                    );
-                    if (!launched) {
-                      // 内部ブラウザで開けなかった場合、SnackBarを表示してから外部ブラウザを開く
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('内部ブラウザで開けなかったため、外部ブラウザで開きます。')),
-                      );
-                      launched = await launchUrl(
-                        uri,
-                        mode: LaunchMode.externalApplication,
-                      );
-                      if (!launched) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('URL を開くことができませんでした。')),
-                        );
-                      }
-                    }
-                  } catch (e) {
-                    // 例外が発生した場合も外部ブラウザを試みる前にSnackBarを表示
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('エラーが発生しました。外部ブラウザで開きます。')),
-                    );
-                    try {
-                      launched = await launchUrl(
-                        uri,
-                        mode: LaunchMode.externalApplication,
-                      );
-                      if (!launched) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('URL を開くことができませんでした。')),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('外部ブラウザで開きました。')),
-                        );
-                      }
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('URL を開くことができませんでした。')),
-                      );
-                    }
-                  }
-                },
-                child: const Text('GitHubで開く'),
+
+              Center(
+                child: Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 16.0,
+                  runSpacing: 8.0,
+                  children: [
+                    // Stars
+                    _buildAttributeItem(
+                      context: context,
+                      icon: Icons.star,
+                      iconColor: Theme.of(context).colorScheme.secondary,
+                      text: '${repository.stargazersCount}',
+                      description: loc.starsDescription,
+                    ),
+                    // Watchers
+                    _buildAttributeItem(
+                      context: context,
+                      icon: Icons.remove_red_eye,
+                      iconColor: Theme.of(context).colorScheme.secondary,
+                      text: '${repository.watchersCount}',
+                      description: loc.watchersDescription,
+                    ),
+                    // Forks
+                    _buildAttributeItem(
+                      context: context,
+                      icon: Icons.call_split,
+                      iconColor: Theme.of(context).colorScheme.secondary,
+                      text: '${repository.forksCount}',
+                      description: loc.forksDescription,
+                    ),
+                    // Issues
+                    _buildAttributeItem(
+                      context: context,
+                      icon: Icons.error_outline,
+                      iconColor: Theme.of(context).colorScheme.secondary,
+                      text: '${repository.openIssuesCount}',
+                      description: loc.issuesDescription,
+                    ),
+                    // 言語
+                    _buildAttributeItem(
+                      context: context,
+                      icon: Icons.code,
+                      iconColor: Theme.of(context).colorScheme.onSurface,
+                      text: repository.language,
+                      description: loc.languageDescription,
+                    ),
+                    // ライセンス
+                    _buildLicenseInfo(context, repository.licenseName),
+                  ],
+                ),
               ),
-              const SizedBox(height: 24), // README表示との間隔調整
+
+              const SizedBox(height: 16),
+              Center(
+                child: ElevatedButton(
+                  onPressed: _openRepositoryUrl,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/github-mark.svg',
+                        width: 20,
+                        height: 20,
+                        // colorプロパティはdeprecatedなのでcolorFilterを使用
+                        colorFilter: ColorFilter.mode(
+                          Theme.of(context).iconTheme.color ?? Colors.black,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(loc.openInGitHub),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
 
               FutureBuilder<String>(
                 future: GitHubApiService().fetchReadme(
@@ -208,107 +313,94 @@ class DetailScreen extends StatelessWidget {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
-                    return SelectableText(
-                      'READMEを取得できませんでした: ${snapshot.error}',
-                      style: const TextStyle(color: Colors.red),
+                    return Text(
+                      loc.readmeFetchError(snapshot.error.toString()),
+                      style: TextStyle(color: Theme.of(context).colorScheme.error),
                     );
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return SelectableText('READMEがありません。');
+                    return Text(
+                      loc.noReadme,
+                      style: TextStyle(
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
+                      ),
+                    );
                   } else {
                     String readmeContent = snapshot.data!;
 
                     // RSTをMarkdownに変換する前処理を追加
-                    // 1. 画像ディレクティブの変換
                     final RegExp imageRegExp = RegExp(
                       r'\.\.\s+image::\s+(\S+)\s+:alt:\s+([^:]+)\s+:target:\s+(\S+)',
                       multiLine: true,
                     );
+                    readmeContent =
+                        readmeContent.replaceAllMapped(imageRegExp, (match) {
+                          final imageUrl = match.group(1)?.trim() ?? '';
+                          final altText = match.group(2)?.trim() ?? '';
+                          final targetUrl = match.group(3)?.trim() ?? '';
+                          return '[![$altText]($imageUrl)]($targetUrl)';
+                        });
 
-                    readmeContent = readmeContent.replaceAllMapped(imageRegExp, (match) {
-                      final imageUrl = match.group(1)?.trim() ?? '';
-                      final altText = match.group(2)?.trim() ?? '';
-                      final targetUrl = match.group(3)?.trim() ?? '';
-                      return '[![$altText]($imageUrl)]($targetUrl)';
-                    });
-
-                    // 2. 見出しの変換
-                    // RSTの見出しは、テキストの下に等号やハイフンなどで装飾されます。
-                    // これをMarkdownの#、##に変換します。
-                    // ここでは、'=' がレベル1、'-' がレベル2、'^' がレベル3として処理します。
-
-                    // レベル1 見出し
                     final RegExp heading1RegExp = RegExp(
                       r'^(.*?)\n=+\n',
                       multiLine: true,
                     );
-                    readmeContent = readmeContent.replaceAllMapped(heading1RegExp, (match) {
-                      final title = match.group(1)?.trim() ?? '';
-                      return '# $title\n\n';
-                    });
+                    readmeContent =
+                        readmeContent.replaceAllMapped(heading1RegExp, (match) {
+                          final title = match.group(1)?.trim() ?? '';
+                          return '# $title\n\n';
+                        });
 
-                    // レベル2 見出し
                     final RegExp heading2RegExp = RegExp(
                       r'^(.*?)\n-+\n',
                       multiLine: true,
                     );
-                    readmeContent = readmeContent.replaceAllMapped(heading2RegExp, (match) {
-                      final title = match.group(1)?.trim() ?? '';
-                      return '## $title\n\n';
-                    });
+                    readmeContent =
+                        readmeContent.replaceAllMapped(heading2RegExp, (match) {
+                          final title = match.group(1)?.trim() ?? '';
+                          return '## $title\n\n';
+                        });
 
-                    // レベル3 見出し
                     final RegExp heading3RegExp = RegExp(
                       r'^(.*?)\n~+\n',
                       multiLine: true,
                     );
-                    readmeContent = readmeContent.replaceAllMapped(heading3RegExp, (match) {
-                      final title = match.group(1)?.trim() ?? '';
-                      return '### $title\n\n';
-                    });
+                    readmeContent =
+                        readmeContent.replaceAllMapped(heading3RegExp, (match) {
+                          final title = match.group(1)?.trim() ?? '';
+                          return '### $title\n\n';
+                        });
 
-                    // 3. 太字と斜体の変換
-                    // RSTでは、*斜体*、**太字** などが使用されますが、Markdownと同様の形式なので特別な変換は不要です。
-
-                    // 4. リストの変換
-                    // RSTの箇条書きリストは、'- ' や '* ' で始まります。Markdownと同様なので特別な変換は不要です。
-
-                    // 5. リンクの変換
-                    // RSTのリンクは、`link text <URL>`_ の形式です。これをMarkdownの[link text](URL)に変換します。
                     final RegExp linkRegExp = RegExp(
                       r'`([^`<]+)\s*<([^>]+)>`_',
                       multiLine: true,
                     );
-                    readmeContent = readmeContent.replaceAllMapped(linkRegExp, (match) {
-                      final text = match.group(1)?.trim() ?? '';
-                      final url = match.group(2)?.trim() ?? '';
-                      return '[$text]($url)';
-                    });
+                    readmeContent =
+                        readmeContent.replaceAllMapped(linkRegExp, (match) {
+                          final text = match.group(1)?.trim() ?? '';
+                          final url = match.group(2)?.trim() ?? '';
+                          return '[$text]($url)';
+                        });
 
-                    // 6. コードブロックの変換
-                    // RSTのコードブロックは、:: の後にインデントされたテキストで表現されます。
-                    // これをMarkdownの```で囲まれたブロックに変換します。
                     final RegExp codeBlockRegExp = RegExp(
                       r'::\n((?:\n| +.+)+)',
                       multiLine: true,
                     );
-                    readmeContent = readmeContent.replaceAllMapped(codeBlockRegExp, (match) {
-                      final code = match.group(1)
-                          ?.replaceAll(RegExp(r'^\s{4}', multiLine: true), '') ??
-                          '';
-                      return '```\n$code\n```\n';
-                    });
-
-                    // 7. 引用の変換
-                    // RSTの引用は、"> " で始まる行で表現されます。Markdownと同様の形式なので特別な変換は不要です。
-
-                    // 8. その他の変換
-                    // 必要に応じて追加の変換ロジックをここに追加します。
+                    readmeContent =
+                        readmeContent.replaceAllMapped(codeBlockRegExp, (match) {
+                          final code = match.group(1)?.replaceAll(
+                            RegExp(r'^\s{4}', multiLine: true),
+                            '',
+                          ) ??
+                              '';
+                          return '```\n$code\n```\n';
+                        });
 
                     return MarkdownBody(
-                      selectable: true, // 追加: Markdownを選択可能にする
+                      selectable: true,
                       data: readmeContent,
                       onTapLink: (text, href, title) async {
                         if (href != null) {
+                          final messenger = ScaffoldMessenger.of(context);
                           final uri = Uri.parse(href);
                           bool launched = false;
                           try {
@@ -317,26 +409,30 @@ class DetailScreen extends StatelessWidget {
                               mode: LaunchMode.inAppWebView,
                             );
                             if (!launched) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('内部ブラウザで開けなかったため、外部ブラウザで開きます。')),
+                              if (!mounted) return;
+                              messenger.showSnackBar(
+                                SnackBar(content: Text(msgOpenExternal)),
                               );
                               launched = await launchUrl(
                                 uri,
                                 mode: LaunchMode.externalApplication,
                               );
                               if (!launched) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('リンクを開くことができませんでした。')),
+                                if (!mounted) return;
+                                messenger.showSnackBar(
+                                  SnackBar(content: Text(msgUrlFail)),
                                 );
                               }
                             } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('リンクを開きました。')),
+                              if (!mounted) return;
+                              messenger.showSnackBar(
+                                SnackBar(content: Text(msgOpenedExternal)),
                               );
                             }
                           } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('エラーが発生しました。リンクを開けません。')),
+                            if (!mounted) return;
+                            messenger.showSnackBar(
+                              SnackBar(content: Text(msgLinkError)),
                             );
                           }
                         }
@@ -344,9 +440,10 @@ class DetailScreen extends StatelessWidget {
                       imageBuilder: (uri, title, alt) {
                         final String imageUrl = uri.isAbsolute
                             ? uri.toString()
-                            : Uri.parse(readmeBaseUrl).resolve(uri.toString()).toString();
+                            : Uri.parse(readmeBaseUrl)
+                            .resolve(uri.toString())
+                            .toString();
 
-                        // URLのパス部分を解析して拡張子をチェック
                         final Uri parsedUri = Uri.parse(imageUrl);
                         if (parsedUri.path.toLowerCase().endsWith('.svg')) {
                           return SvgPicture.network(
@@ -354,12 +451,13 @@ class DetailScreen extends StatelessWidget {
                             placeholderBuilder: (context) => SizedBox(
                               width: 24,
                               height: 24,
-                              child: CircularProgressIndicator(),
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
                             ),
-                            // エラーハンドリングを追加するために、カスタムウィジェットを使用
-                            // flutter_svg では直接的なエラーハンドリングはサポートされていないため、
-                            // 以下の方法で簡易的なエラーハンドリングを実装します
-                            height: 24, // 必要に応じてサイズを調整
+                            height: 24,
                             width: 24,
                             fit: BoxFit.contain,
                           );
@@ -367,7 +465,12 @@ class DetailScreen extends StatelessWidget {
                           return Image.network(
                             imageUrl,
                             errorBuilder: (context, error, stackTrace) {
-                              return Text('画像を読み込めませんでした: ${alt ?? 'Unknown Image'}');
+                              return Text(
+                                loc.imageLoadFail(alt ?? loc.unknownImage),
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
+                              );
                             },
                           );
                         }
