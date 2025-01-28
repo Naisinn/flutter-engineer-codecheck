@@ -45,8 +45,8 @@ class GitHubApiService {
         String? order,
       }) async {
     try {
-      // オーナー名を部分一致キーワードとして扱う
-      final partialOwnerQuery = (owner != null && owner.isNotEmpty) ? owner : '';
+      // オーナー名が指定されていればクエリに追加
+      final ownerQuery = (owner != null && owner.isNotEmpty) ? 'user:$owner' : '';
 
       // 言語が指定されていればクエリに追加
       final languageQuery = (language != null && language.isNotEmpty)
@@ -62,7 +62,7 @@ class GitHubApiService {
       // （検索キーワード、オーナー名キーワード、言語、ライセンス）
       final combinedQuery = [
         query,
-        partialOwnerQuery,
+        ownerQuery,
         languageQuery,
         licenseQuery,
       ].where((element) => element.isNotEmpty).join(' ');

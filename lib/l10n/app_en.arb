@@ -4,7 +4,7 @@
   "searchForm": "Search Form",
   "advancedSearchOptions": "Advanced Search Options",
   "searchKeyword": "Search Keyword",
-  "ownerNameOptional": "Owner Name (optional)",
+  "ownerNameOptional": "Owner Name (optional,exact match)",
   "languageOptional": "Language (optional)",
   "licenseOptional": "License (optional)",
   "sortCriteriaOptional": "Sort Criteria (optional)",
