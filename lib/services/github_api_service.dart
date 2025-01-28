@@ -34,6 +34,8 @@ class GitHubApiService {
   static const String baseUrl = 'https://api.github.com';
 
   /// キーワード、オーナー、言語、ライセンス、ソート基準、ソート順を指定してリポジトリを検索するメソッド
+  /// ※ オーナー名は「部分一致」となるように、'user:$owner' は使わず
+  ///   エンドユーザが入力した文字列をキーワード検索に含める形に変更
   Future<List<Repository>> searchRepositories(
       String query, {
         String? owner,
@@ -43,16 +45,27 @@ class GitHubApiService {
         String? order,
       }) async {
     try {
-      // オーナー名が指定されていればクエリに追加
-      final ownerQuery = (owner != null && owner.isNotEmpty) ? 'user:$owner' : '';
+      // オーナー名を部分一致キーワードとして扱う
+      final partialOwnerQuery = (owner != null && owner.isNotEmpty) ? owner : '';
+
       // 言語が指定されていればクエリに追加
-      final languageQuery = (language != null && language.isNotEmpty) ? 'language:$language' : '';
+      final languageQuery = (language != null && language.isNotEmpty)
+          ? 'language:$language'
+          : '';
+
       // ライセンスが指定されていればクエリに追加
-      final licenseQuery = (license != null && license.isNotEmpty) ? 'license:$license' : '';
+      final licenseQuery = (license != null && license.isNotEmpty)
+          ? 'license:$license'
+          : '';
 
       // 有効なクエリ部分を結合して完全な検索クエリを構築
-      final combinedQuery =
-      [query, ownerQuery, languageQuery, licenseQuery].where((element) => element.isNotEmpty).join(' ');
+      // （検索キーワード、オーナー名キーワード、言語、ライセンス）
+      final combinedQuery = [
+        query,
+        partialOwnerQuery,
+        languageQuery,
+        licenseQuery,
+      ].where((element) => element.isNotEmpty).join(' ');
 
       // 検索用のURLを生成
       final url = Uri.parse(

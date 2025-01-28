@@ -81,18 +81,16 @@ class _SearchScreenState extends State<SearchScreen> {
         ? _selectedLanguage
         : null;
 
-    if (query.isNotEmpty) {
-      // Providerを通じてリポジトリ検索を実行 (contextを渡す)
-      Provider.of<RepositoryProvider>(context, listen: false).search(
-        context,
-        query,
-        owner: owner,
-        language: language,
-        license: license,
-        sort: sort,
-        order: order,
-      );
-    }
+    // 検索キーワードが空でも検索を実行するように変更
+    Provider.of<RepositoryProvider>(context, listen: false).search(
+      context,
+      query,
+      owner: owner,
+      language: language,
+      license: license,
+      sort: sort,
+      order: order,
+    );
   }
 
   @override

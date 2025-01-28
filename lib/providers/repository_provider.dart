@@ -41,6 +41,13 @@ class RepositoryProvider extends ChangeNotifier {
         sort: sort,       // ソート基準を渡す
         order: order,     // ソート順を渡す
       );
+
+      // 検索結果が0件の場合はエラーとして扱う
+      if (_repositories.isEmpty) {
+        final loc = AppLocalizations.of(context)!;
+        _errorMessage = loc.errorNoResults;
+        _repositories.clear();
+      }
     } catch (error) {
       // カスタム例外をチェックしてローカライズ済みメッセージを設定
       final loc = AppLocalizations.of(context)!;
