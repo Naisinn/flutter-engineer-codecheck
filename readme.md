@@ -6,10 +6,10 @@
 さらに、**ダークモード**と**英語表示**にも対応しており、ユーザーの好みに合わせてインターフェースをカスタマイズできます。
 
 ## スクリーンショット
-![Github検索_検索画面.jpg](assets%2FGithub%E6%A4%9C%E7%B4%A2_%E6%A4%9C%E7%B4%A2%E7%94%BB%E9%9D%A2.jpg)
-![Github検索_検索結果.jpg](assets%2FGithub%E6%A4%9C%E7%B4%A2_%E6%A4%9C%E7%B4%A2%E7%B5%90%E6%9E%9C.jpg)
-![Github検索_詳細画面.jpg](assets%2FGithub%E6%A4%9C%E7%B4%A2_%E8%A9%B3%E7%B4%B0%E7%94%BB%E9%9D%A2.jpg)
-![Github検索_ダークモード.jpg](assets%2FGithub%E6%A4%9C%E7%B4%A2_%E3%83%80%E3%83%BC%E3%82%AF%E3%83%A2%E3%83%BC%E3%83%89.jpg)
+| 検索画面 | 検索結果 | 詳細画面 | ダークモード |
+| --- | --- | --- | --- |
+| ![Github検索_検索画面.jpg](assets/Github検索_検索画面.jpg) | ![Github検索_検索結果.jpg](assets/Github検索_検索結果.jpg) | ![Github検索_詳細画面.jpg](assets/Github検索_詳細画面.jpg) | ![Github検索_ダークモード.jpg](assets/Github検索_ダークモード.jpg) |
+
 
 ## インストール方法
 以下の手順に従って、**Github検索**アプリケーションをローカル環境にセットアップしてください。
