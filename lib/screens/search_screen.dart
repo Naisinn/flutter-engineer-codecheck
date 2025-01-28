@@ -10,10 +10,9 @@ import 'detail_screen.dart';
 
 /// リポジトリを検索する画面
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key}); // 修正: super パラメータ
+  const SearchScreen({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _SearchScreenState createState() => _SearchScreenState();
 }
 
@@ -32,14 +31,11 @@ class _SearchScreenState extends State<SearchScreen> {
 
   // ライセンスリストを取得
   final List<String> _licenseOptions = ['Any'] +
-      LicenseUtils.licenseMap.values.map((
-          license) => license['abbreviation'] as String).toList();
+      LicenseUtils.licenseMap.values.map((license) => license['abbreviation'] as String).toList();
 
   // ソートオプションとソート順のリスト（日本語）
-  final List<String> _sortOptions = sortOptions.keys
-      .toList(); // 'ベストマッチ', 'スター数', 'フォーク数', 'ヘルプが必要なイシュー数', '更新日時'
-  final List<String> _sortOrderOptions = sortOrderOptions.keys
-      .toList(); // '降順', '昇順'
+  final List<String> _sortOptions = sortOptions.keys.toList();
+  final List<String> _sortOrderOptions = sortOrderOptions.keys.toList();
 
   /// 検索を実行するメソッド
   void _search() {
@@ -53,14 +49,13 @@ class _SearchScreenState extends State<SearchScreen> {
         ? LicenseUtils.licenseMap.entries
         .firstWhere(
           (entry) => entry.value['abbreviation'] == _selectedLicense,
-      orElse: () =>
-          MapEntry('unknown', {
-            'icon': Icons.help_outline,
-            'color': Colors.grey,
-            'url': 'https://choosealicense.com/licenses/',
-            'abbreviation': 'Unknown',
-            'githubKey': '',
-          }),
+      orElse: () => MapEntry('unknown', {
+        'icon': Icons.help_outline,
+        'color': Colors.grey,
+        'url': 'https://choosealicense.com/licenses/',
+        'abbreviation': 'Unknown',
+        'githubKey': '',
+      }),
     )
         .value['githubKey'] as String?
         : null;
@@ -87,9 +82,9 @@ class _SearchScreenState extends State<SearchScreen> {
         : null;
 
     if (query.isNotEmpty) {
-      // Providerを通じてリポジトリ検索を実行
-      Provider.of<RepositoryProvider>(context, listen: false)
-          .search(
+      // Providerを通じてリポジトリ検索を実行 (contextを渡す)
+      Provider.of<RepositoryProvider>(context, listen: false).search(
+        context,
         query,
         owner: owner,
         language: language,
@@ -113,7 +108,7 @@ class _SearchScreenState extends State<SearchScreen> {
           // 折りたたみ可能な検索フォーム
           ExpansionTile(
             title: Text(loc.searchForm),
-            initiallyExpanded: true, // 初期状態で展開する場合は true に設定
+            initiallyExpanded: true,
             children: [
               // 基本検索項目
               Padding(
@@ -274,7 +269,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 );
               },
-            )) // 修正: .toList() を削除
+            ))
         ],
       ),
     );

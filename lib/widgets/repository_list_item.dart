@@ -8,7 +8,7 @@ class RepositoryListItem extends StatelessWidget {
   final Repository repository;
   final VoidCallback onTap;
 
-  const RepositoryListItem({super.key, required this.repository, required this.onTap}); // 修正: super パラメータ
+  const RepositoryListItem({Key? key, required this.repository, required this.onTap}) : super(key: key);
 
   // 共通のライセンスマッピングを使用するヘルパーメソッド
   Widget _buildLicenseInfo(String licenseName) {
@@ -34,10 +34,9 @@ class RepositoryListItem extends StatelessWidget {
         Icon(iconData, color: iconColor, size: 16),
         const SizedBox(width: 4),
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           decoration: BoxDecoration(
-            // color: iconColor.withOpacity(0.1), // 修正: withOpacity → withAlpha
-            color: iconColor.withAlpha(25), // 0.1 * 255 ≈ 25
+            color: iconColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(4),
           ),
           child: Text(
@@ -64,7 +63,7 @@ class RepositoryListItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(repository.language), // 修正: ?? loc.notAvailable を削除
+          Text(repository.language), // 言語をサブタイトルとして表示
           Text('オーナー: ${repository.ownerName}'), // オーナー名を追加
           _buildLicenseInfo(repository.licenseName), // ライセンス情報にアイコンと略称を追加
         ],
@@ -82,4 +81,3 @@ class RepositoryListItem extends StatelessWidget {
     );
   }
 }
-

@@ -11,7 +11,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 class DetailScreen extends StatelessWidget {
   final Repository repository;
 
-  const DetailScreen({super.key, required this.repository}); // 修正: super パラメータ
+  const DetailScreen({Key? key, required this.repository}) : super(key: key);
 
   // 共通のライセンスマッピングを使用するヘルパーメソッド
   Widget _buildLicenseInfo(BuildContext context, String licenseName) {
@@ -37,66 +37,69 @@ class DetailScreen extends StatelessWidget {
 
     return GestureDetector(
       onTap: () async {
-        // 必要な情報を事前に取得
         final loc = AppLocalizations.of(context)!;
-        final messenger = ScaffoldMessenger.of(context);
-        final snackBarThemeColor = Theme.of(context).snackBarTheme.backgroundColor;
-
         final uri = Uri.parse(url);
         bool launched = false;
         try {
-          launched = await launchUrl(uri, mode: LaunchMode.inAppWebView);
-          if (!context.mounted) return;
-
+          // 内部ブラウザで開くことを試みる
+          launched = await launchUrl(
+            uri,
+            mode: LaunchMode.inAppWebView,
+          );
           if (!launched) {
-            messenger.showSnackBar(
+            // 内部ブラウザで開けなかった場合、SnackBarを表示してから外部ブラウザを開く
+            ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(loc.snackbarOpenExternal),
-                backgroundColor: snackBarThemeColor,
+                backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
               ),
             );
-            launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
-            if (!context.mounted) return;
+            launched = await launchUrl(
+              uri,
+              mode: LaunchMode.externalApplication,
+            );
             if (!launched) {
-              messenger.showSnackBar(
+              ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(loc.snackbarLicenseFail),
-                  backgroundColor: snackBarThemeColor,
+                  backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
                 ),
               );
             }
           }
         } catch (e) {
-          if (!context.mounted) return;
-          messenger.showSnackBar(
+          // 例外が発生した場合も外部ブラウザを試みる前にSnackBarを表示
+          ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(loc.snackbarErrorAndOpenExternal),
-              backgroundColor: snackBarThemeColor,
+              backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
             ),
           );
           try {
-            launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
-            if (!context.mounted) return;
+            launched = await launchUrl(
+              uri,
+              mode: LaunchMode.externalApplication,
+            );
             if (!launched) {
-              messenger.showSnackBar(
+              ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(loc.snackbarLicenseFail),
-                  backgroundColor: snackBarThemeColor,
+                  backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
                 ),
               );
             } else {
-              messenger.showSnackBar(
+              ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(loc.snackbarOpenedExternal),
-                  backgroundColor: snackBarThemeColor,
+                  backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
                 ),
               );
             }
           } catch (e) {
-            messenger.showSnackBar(
+            ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(loc.snackbarLicenseFail),
-                backgroundColor: snackBarThemeColor,
+                backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
               ),
             );
           }
@@ -238,7 +241,7 @@ class DetailScreen extends StatelessWidget {
                       context: context,
                       icon: Icons.code,
                       iconColor: Theme.of(context).colorScheme.onSurface,
-                      text: repository.language, // 修正: ?? loc.notAvailable を削除
+                      text: repository.language,
                       description: loc.languageDescription,
                     ),
                     // ライセンス
@@ -251,65 +254,68 @@ class DetailScreen extends StatelessWidget {
               Center(
                 child: ElevatedButton(
                   onPressed: () async {
-                    // 必要な情報を事前に取得
-                    final loc = AppLocalizations.of(context)!;
-                    final messenger = ScaffoldMessenger.of(context);
-                    final snackBarThemeColor = Theme.of(context).snackBarTheme.backgroundColor;
-
                     final uri = Uri.parse(repository.htmlUrl);
                     bool launched = false;
                     try {
-                      launched = await launchUrl(uri, mode: LaunchMode.inAppWebView);
-                      if (!context.mounted) return;
+                      // 内部ブラウザで開くことを試みる
+                      launched = await launchUrl(
+                        uri,
+                        mode: LaunchMode.inAppWebView,
+                      );
                       if (!launched) {
-                        messenger.showSnackBar(
+                        // 内部ブラウザで開けなかった場合、SnackBarを表示してから外部ブラウザを開く
+                        ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(loc.snackbarOpenExternal),
-                            backgroundColor: snackBarThemeColor,
+                            backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
                           ),
                         );
-                        launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
-                        if (!context.mounted) return;
+                        launched = await launchUrl(
+                          uri,
+                          mode: LaunchMode.externalApplication,
+                        );
                         if (!launched) {
-                          messenger.showSnackBar(
+                          ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(loc.snackbarUrlFail),
-                              backgroundColor: snackBarThemeColor,
+                              backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
                             ),
                           );
                         }
                       }
                     } catch (e) {
-                      if (!context.mounted) return;
-                      messenger.showSnackBar(
+                      // 例外が発生した場合も外部ブラウザを試みる前にSnackBarを表示
+                      ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(loc.snackbarErrorAndOpenExternal),
-                          backgroundColor: snackBarThemeColor,
+                          backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
                         ),
                       );
                       try {
-                        launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
-                        if (!context.mounted) return;
+                        launched = await launchUrl(
+                          uri,
+                          mode: LaunchMode.externalApplication,
+                        );
                         if (!launched) {
-                          messenger.showSnackBar(
+                          ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(loc.snackbarUrlFail),
-                              backgroundColor: snackBarThemeColor,
+                              backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
                             ),
                           );
                         } else {
-                          messenger.showSnackBar(
+                          ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(loc.snackbarOpenedExternal),
-                              backgroundColor: snackBarThemeColor,
+                              backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
                             ),
                           );
                         }
                       } catch (e) {
-                        messenger.showSnackBar(
+                        ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(loc.snackbarUrlFail),
-                            backgroundColor: snackBarThemeColor,
+                            backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
                           ),
                         );
                       }
@@ -322,10 +328,7 @@ class DetailScreen extends StatelessWidget {
                         'assets/github-mark.svg',
                         width: 20,
                         height: 20,
-                        colorFilter: ColorFilter.mode( // 修正: color → colorFilter
-                          Theme.of(context).iconTheme.color ?? Colors.black,
-                          BlendMode.srcIn,
-                        ),
+                        color: Theme.of(context).iconTheme.color, // アイコンの色を設定
                       ),
                       const SizedBox(width: 8),
                       Text(loc.openInGitHub),
@@ -423,48 +426,49 @@ class DetailScreen extends StatelessWidget {
                       data: readmeContent,
                       onTapLink: (text, href, title) async {
                         if (href != null) {
-                          // 必要な情報を事前に取得
-                          final loc = AppLocalizations.of(context)!;
-                          final messenger = ScaffoldMessenger.of(context);
-                          final snackBarThemeColor = Theme.of(context).snackBarTheme.backgroundColor;
-
                           final uri = Uri.parse(href);
                           bool launched = false;
                           try {
-                            launched = await launchUrl(uri, mode: LaunchMode.inAppWebView);
-                            if (!context.mounted) return;
-
+                            launched = await launchUrl(
+                              uri,
+                              mode: LaunchMode.inAppWebView,
+                            );
                             if (!launched) {
-                              messenger.showSnackBar(
+                              ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(loc.snackbarOpenExternal),
-                                  backgroundColor: snackBarThemeColor,
+                                  backgroundColor:
+                                  Theme.of(context).snackBarTheme.backgroundColor,
                                 ),
                               );
-                              launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
-                              if (!context.mounted) return;
+                              launched = await launchUrl(
+                                uri,
+                                mode: LaunchMode.externalApplication,
+                              );
                               if (!launched) {
-                                messenger.showSnackBar(
+                                ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(loc.snackbarLinkFail),
-                                    backgroundColor: snackBarThemeColor,
+                                    backgroundColor:
+                                    Theme.of(context).snackBarTheme.backgroundColor,
                                   ),
                                 );
                               }
                             } else {
-                              messenger.showSnackBar(
+                              ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(loc.snackbarOpenedExternal),
-                                  backgroundColor: snackBarThemeColor,
+                                  backgroundColor:
+                                  Theme.of(context).snackBarTheme.backgroundColor,
                                 ),
                               );
                             }
                           } catch (e) {
-                            if (!context.mounted) return;
-                            messenger.showSnackBar(
+                            ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(loc.snackbarLinkError),
-                                backgroundColor: snackBarThemeColor,
+                                backgroundColor:
+                                Theme.of(context).snackBarTheme.backgroundColor,
                               ),
                             );
                           }
@@ -483,7 +487,8 @@ class DetailScreen extends StatelessWidget {
                               width: 24,
                               height: 24,
                               child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    Theme.of(context).colorScheme.primary),
                               ),
                             ),
                             height: 24,

@@ -30,5 +30,12 @@
   "issuesDescription": "Issues: The number of open issues in this repository.",
   "languageDescription": "Language: The primary programming language used in this repository.",
   "notAvailable": "N/A",
-  "unknownImage": "Unknown Image"
+  "unknownImage": "Unknown Image",
+
+  "errorNoInternet": "No internet connection. Please check your network settings and try again.",
+  "errorNotFound": "The requested resource was not found.",
+  "errorServerError": "GitHub is experiencing some problems. Please try again later.",
+  "errorUnknown": "An unknown error occurred. Please try again later.",
+  "errorRateLimit": "GitHub's API rate limit has been exceeded. Please wait before trying again.",
+  "errorTimeout": "The connection has timed out. Please try again."
 }

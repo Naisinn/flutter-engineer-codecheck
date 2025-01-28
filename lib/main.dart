@@ -20,7 +20,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key}); // 修正: super パラメータ
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

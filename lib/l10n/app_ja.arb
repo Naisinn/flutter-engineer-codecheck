@@ -30,5 +30,12 @@
   "issuesDescription": "Issues: このリポジトリの現在開いている課題の数です。",
   "languageDescription": "言語: このリポジトリで主に使用されているプログラミング言語です。",
   "notAvailable": "N/A",
-  "unknownImage": "Unknown Image"
+  "unknownImage": "Unknown Image",
+
+  "errorNoInternet": "ネットワークに接続できません。接続状況を確認して再度お試しください。",
+  "errorNotFound": "リクエストされたリソースは見つかりませんでした。",
+  "errorServerError": "GitHubサーバーで問題が発生しています。しばらく時間をおいてから再度お試しください。",
+  "errorUnknown": "原因不明のエラーが発生しました。再度お試しください。",
+  "errorRateLimit": "GitHub APIのレート制限を超過しました。しばらく時間をおいて再度お試しください。",
+  "errorTimeout": "通信がタイムアウトしました。再度お試しください。"
 }
