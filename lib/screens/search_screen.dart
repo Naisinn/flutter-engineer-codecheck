@@ -21,21 +21,22 @@ class SearchScreenState extends State<SearchScreen> {
   final TextEditingController _queryController = TextEditingController();
   final TextEditingController _ownerController = TextEditingController();
 
-  // プルダウンで選択された言語とライセンス
+  // 言語選択ドロップダウンの初期値とライセンスドロップダウンの初期値
   String? _selectedLanguage = programmingLanguages.first;
-  String? _selectedLicense = 'Any'; // ライセンス選択の初期値を 'Any' に設定
+  String? _selectedLicense = 'Any';
 
-  // プルダウンで選択されたソート基準とソート順
-  String? _selectedSort = 'ベストマッチ'; // ソート基準の初期値（日本語）
-  String? _selectedOrder = '降順'; // ソート順の初期値（日本語）
+  // 以下の2つはソート基準とソート順の**実際にAPIに渡すパラメータ**を保持します。
+  // ソート基準の初期値は '': "ベストマッチ" に対応
+  String _selectedSortValue = '';
+  // ソート順の初期値は 'desc'
+  String _selectedOrderValue = 'desc';
 
-  // ライセンスリストを取得
-  final List<String> _licenseOptions = ['Any'] +
-      LicenseUtils.licenseMap.values.map((license) => license['abbreviation'] as String).toList();
-
-  // ソートオプションとソート順のリスト（日本語）
-  final List<String> _sortOptions = sortOptions.keys.toList();
-  final List<String> _sortOrderOptions = sortOrderOptions.keys.toList();
+  // ライセンスリストを取得（"Any" + ライセンス略称）
+  final List<String> _licenseOptions = [
+    'Any',
+    ...LicenseUtils.licenseMap.values
+        .map((license) => license['abbreviation'] as String)
+  ];
 
   /// 検索を実行するメソッド
   Future<void> _search() async {
@@ -63,28 +64,18 @@ class SearchScreenState extends State<SearchScreen> {
         .value['githubKey'] as String?
         : null;
 
-    // ソート基準の変換（日本語ラベルからAPIキーへ）
-    String? sort;
-    if (_selectedSort != null && _selectedSort != 'ベストマッチ') {
-      sort = sortOptions[_selectedSort!];
-    } else {
-      sort = null; // 'ベストマッチ' の場合はソート基準を指定しない
-    }
+    // ソート基準: '' は「ベストマッチ」に対応するため、検索時は null を渡す
+    final sort = _selectedSortValue.isEmpty ? null : _selectedSortValue;
 
-    // ソート順の変換（日本語ラベルからAPIキーへ）
-    String? order;
-    if (sort != null && _selectedOrder != null) {
-      order = sortOrderOptions[_selectedOrder!];
-    } else {
-      order = null;
-    }
+    // ソート順: 'desc' or 'asc'
+    final order = _selectedOrderValue.isEmpty ? null : _selectedOrderValue;
 
     // 'Any'が選択されている場合は言語フィルタを適用しない
     final language = (_selectedLanguage != null && _selectedLanguage != 'Any')
         ? _selectedLanguage
         : null;
 
-    // Providerからsearchを呼ぶ
+    // Providerからsearchを呼び出し
     await Provider.of<RepositoryProvider>(context, listen: false).search(
       query,
       owner: owner,
@@ -94,21 +85,31 @@ class SearchScreenState extends State<SearchScreen> {
       order: order,
     );
 
-    if (!mounted) return; // 非同期後に context を使う場合はチェック
-    // ※ 現状特にUI更新以外はしていないので、このままでもOK
+    if (!mounted) return; // 非同期処理後にcontextを扱うならmountedチェック
   }
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<RepositoryProvider>(context);
     final loc = AppLocalizations.of(context)!;
+    final provider = Provider.of<RepositoryProvider>(context);
 
-    // 取得したソートキーをリストアイテムに渡す
-    String currentSortKey =
-    _selectedSort != null && _selectedSort != 'ベストマッチ'
-        ? sortOptions[_selectedSort!] ?? 'stars'
-        : 'stars'; // デフォルトはスター数
+    // ソート基準の選択肢をローカライズ
+    // value: 実際のAPIパラメータ, label: 画面表示
+    final sortOptionsLocalized = [
+      {'value': '', 'label': loc.sortCriteriaBestMatch}, // ベストマッチ
+      {'value': 'stars', 'label': loc.sortCriteriaStars},
+      {'value': 'forks', 'label': loc.sortCriteriaForks},
+      {'value': 'help-wanted-issues', 'label': loc.sortCriteriaHelpWantedIssues},
+      {'value': 'updated', 'label': loc.sortCriteriaUpdated},
+    ];
 
+    // ソート順の選択肢をローカライズ
+    final sortOrderLocalized = [
+      {'value': 'desc', 'label': loc.sortOrderDesc}, // 降順
+      {'value': 'asc', 'label': loc.sortOrderAsc},   // 昇順
+    ];
+
+    // 現在のAPIパラメータをもとに、ラベルなどを生成
     return Scaffold(
       appBar: AppBar(title: Text(loc.appTitle)),
       body: ListView(
@@ -120,16 +121,13 @@ class SearchScreenState extends State<SearchScreen> {
             initiallyExpanded: true,
             children: [
               // 基本検索項目
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: TextField(
-                  controller: _queryController,
-                  decoration: InputDecoration(
-                    labelText: loc.searchKeyword,
-                    border: const OutlineInputBorder(),
-                  ),
-                  onSubmitted: (_) => _search(),
+              TextField(
+                controller: _queryController,
+                decoration: InputDecoration(
+                  labelText: loc.searchKeyword,
+                  border: const OutlineInputBorder(),
                 ),
+                onSubmitted: (_) => _search(),
               ),
               const SizedBox(height: 8),
 
@@ -192,45 +190,45 @@ class SearchScreenState extends State<SearchScreen> {
                   ),
                   const SizedBox(height: 8),
 
-                  // ソート基準選択用プルダウン（日本語）
+                  // ソート基準選択用プルダウン（ローカライズされたラベル）
                   DropdownButtonFormField<String>(
-                    value: _selectedSort,
+                    value: _selectedSortValue,
                     decoration: InputDecoration(
                       labelText: loc.sortCriteriaOptional,
                       border: const OutlineInputBorder(),
                     ),
-                    items: _sortOptions.map((sort) {
+                    items: sortOptionsLocalized.map((item) {
                       return DropdownMenuItem<String>(
-                        value: sort,
-                        child: Text(sort),
+                        value: item['value'],
+                        child: Text(item['label'] ?? ''),
                       );
                     }).toList(),
                     onChanged: (newValue) {
                       setState(() {
-                        _selectedSort = newValue;
-                        // ソート順の初期値をリセット（例: '降順'）
-                        _selectedOrder = '降順';
+                        _selectedSortValue = newValue ?? '';
+                        // ソート基準を変更したら、ソート順は降順('desc')にリセットする等の挙動が必要ならここで対処
+                        // 例: _selectedOrderValue = 'desc';
                       });
                     },
                   ),
                   const SizedBox(height: 8),
 
-                  // ソート順選択用プルダウン（日本語）
+                  // ソート順選択用プルダウン（ローカライズされたラベル）
                   DropdownButtonFormField<String>(
-                    value: _selectedOrder,
+                    value: _selectedOrderValue,
                     decoration: InputDecoration(
                       labelText: loc.sortOrderOptional,
                       border: const OutlineInputBorder(),
                     ),
-                    items: _sortOrderOptions.map((order) {
+                    items: sortOrderLocalized.map((item) {
                       return DropdownMenuItem<String>(
-                        value: order,
-                        child: Text(order),
+                        value: item['value'],
+                        child: Text(item['label'] ?? ''),
                       );
                     }).toList(),
                     onChanged: (newValue) {
                       setState(() {
-                        _selectedOrder = newValue;
+                        _selectedOrderValue = newValue ?? 'desc';
                       });
                     },
                   ),
@@ -278,7 +276,10 @@ class SearchScreenState extends State<SearchScreen> {
                     ),
                   );
                 },
-                sortCriteria: currentSortKey,
+                // リストアイテムにAPIパラメータを渡す
+                sortCriteria: _selectedSortValue.isEmpty
+                    ? 'stars' // ベストマッチ時はスター数表示をデフォルトに
+                    : _selectedSortValue,
               ),
             ),
         ],
@@ -304,5 +305,6 @@ class SearchScreenState extends State<SearchScreen> {
       case RepositoryErrorType.unknown:
         return loc.errorUnknown;
     }
+    // すべて網羅しているため、default句は不要
   }
 }
