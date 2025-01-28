@@ -4,7 +4,7 @@
   "searchForm": "Search Form",
   "advancedSearchOptions": "Advanced Search Options",
   "searchKeyword": "Search Keyword",
-  "ownerNameOptional": "Owner Name (optional)",
+  "ownerNameOptional": "Owner Name (optional,exact match)",
   "languageOptional": "Language (optional)",
   "licenseOptional": "License (optional)",
   "sortCriteriaOptional": "Sort Criteria (optional)",
@@ -38,5 +38,13 @@
   "errorUnknown": "An unknown error occurred. Please try again later.",
   "errorRateLimit": "GitHub's API rate limit has been exceeded. Please wait before trying again.",
   "errorTimeout": "The connection has timed out. Please try again.",
-  "errorNoResults": "No repositories found matching your criteria."
+  "errorNoResults": "No repositories found matching your criteria.",
+
+  "sortCriteriaBestMatch": "Best Match",
+  "sortCriteriaStars": "Stars",
+  "sortCriteriaForks": "Forks",
+  "sortCriteriaHelpWantedIssues": "Help Wanted Issues",
+  "sortCriteriaUpdated": "Updated",
+  "sortOrderDesc": "Descending",
+  "sortOrderAsc": "Ascending"
 }

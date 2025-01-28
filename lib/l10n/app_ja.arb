@@ -4,7 +4,7 @@
   "searchForm": "検索フォーム",
   "advancedSearchOptions": "高度な検索オプション",
   "searchKeyword": "検索キーワード",
-  "ownerNameOptional": "オーナー名（任意）",
+  "ownerNameOptional": "オーナー名（任意、完全一致）",
   "languageOptional": "言語（任意）",
   "licenseOptional": "ライセンス（任意）",
   "sortCriteriaOptional": "ソート基準（任意）",
@@ -38,5 +38,13 @@
   "errorUnknown": "原因不明のエラーが発生しました。再度お試しください。",
   "errorRateLimit": "GitHub APIのレート制限を超過しました。しばらく時間をおいて再度お試しください。",
   "errorTimeout": "通信がタイムアウトしました。再度お試しください。",
-  "errorNoResults": "検索条件に合致するリポジトリは見つかりませんでした。"
+  "errorNoResults": "検索条件に合致するリポジトリは見つかりませんでした。",
+
+  "sortCriteriaBestMatch": "ベストマッチ",
+  "sortCriteriaStars": "スター数",
+  "sortCriteriaForks": "フォーク数",
+  "sortCriteriaHelpWantedIssues": "ヘルプが必要なイシュー数",
+  "sortCriteriaUpdated": "更新日時",
+  "sortOrderDesc": "降順",
+  "sortOrderAsc": "昇順"
 }
