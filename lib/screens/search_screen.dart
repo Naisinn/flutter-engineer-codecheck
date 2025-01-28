@@ -98,6 +98,11 @@ class _SearchScreenState extends State<SearchScreen> {
     final provider = Provider.of<RepositoryProvider>(context);
     final loc = AppLocalizations.of(context)!;
 
+    // 取得したソートキーをリストアイテムに渡す
+    String currentSortKey = _selectedSort != null && _selectedSort != 'ベストマッチ'
+        ? sortOptions[_selectedSort!] ?? 'stars'
+        : 'stars'; // デフォルトはスター数
+
     return Scaffold(
       appBar: AppBar(title: Text(loc.appTitle)),
       body: ListView(
@@ -267,6 +272,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 );
               },
+              sortCriteria: currentSortKey, // 追加: ソート基準を渡す
             ))
         ],
       ),
