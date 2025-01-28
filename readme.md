@@ -125,7 +125,7 @@ Additionally, **Dark Mode** and **English Display** are supported, allowing user
 ## Screenshots
 | Search Screen | Search Results | Detail Screen | Dark Mode |
 | --- | --- | --- | --- |
-| ![GitHub Search_Search Screen.jpg](assets/GitHub_Search_Search_Screen.jpg) | ![GitHub Search_Search Results.jpg](assets/GitHub_Search_Search_Results.jpg) | ![GitHub Search_Detail Screen.jpg](assets/GitHub_Search_Detail_Screen.jpg) | ![GitHub Search_Dark Mode.jpg](assets/GitHub_Search_Dark_Mode.jpg) |
+| ![Github検索_検索画面.jpg](assets/Github検索_検索画面.jpg) | ![Github検索_検索結果.jpg](assets/Github検索_検索結果.jpg) | ![Github検索_詳細画面.jpg](assets/Github検索_詳細画面.jpg) | ![Github検索_ダークモード.jpg](assets/Github検索_ダークモード.jpg) |
 
 ## Installation
 
