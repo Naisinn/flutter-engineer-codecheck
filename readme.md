@@ -110,4 +110,7 @@
   リポジトリの詳細情報を豊富に表示し、READMEの内容も確認できます。
 
 ## ライセンス
-本プロジェクトは [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0) のもとで公開されています。
+## ライセンス
+
+このプロジェクトの開発部分はGNU Affero General Public License v3（AGPL v3）の下で提供されています。
+元の課題はApache License Version 2.0（Apache 2.0）の下で提供されています。
