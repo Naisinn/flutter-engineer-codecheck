@@ -116,13 +116,16 @@ class _SearchScreenState extends State<SearchScreen> {
             initiallyExpanded: true, // 初期状態で展開する場合は true に設定
             children: [
               // 基本検索項目
-              TextField(
-                controller: _queryController,
-                decoration: InputDecoration(
-                  labelText: loc.searchKeyword,
-                  border: const OutlineInputBorder(),
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: TextField(
+                  controller: _queryController,
+                  decoration: InputDecoration(
+                    labelText: loc.searchKeyword,
+                    border: const OutlineInputBorder(),
+                  ),
+                  onSubmitted: (_) => _search(),
                 ),
-                onSubmitted: (_) => _search(),
               ),
               const SizedBox(height: 8),
 
