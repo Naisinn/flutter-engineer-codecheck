@@ -1,4 +1,3 @@
-```markdown
 # Github検索
 
 ## 概要
@@ -112,4 +111,3 @@
 
 ## ライセンス
 本プロジェクトは [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0) のもとで公開されています。
-```
