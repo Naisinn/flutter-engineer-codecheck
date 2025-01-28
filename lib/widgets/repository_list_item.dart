@@ -10,11 +10,11 @@ class RepositoryListItem extends StatelessWidget {
   final String sortCriteria; // 追加: ソート基準
 
   const RepositoryListItem({
-    Key? key,
+    super.key, // 変更: super.key を使用
     required this.repository,
     required this.onTap,
     required this.sortCriteria, // 追加
-  }) : super(key: key);
+  });
 
   // 共通のライセンスマッピングを使用するヘルパーメソッド
   Widget _buildLicenseInfo(String licenseName) {
@@ -42,7 +42,7 @@ class RepositoryListItem extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           decoration: BoxDecoration(
-            color: iconColor.withOpacity(0.1),
+            color: iconColor.withAlpha(26), // 変更: withOpacity(0.1) を withAlpha(26) に置き換え
             borderRadius: BorderRadius.circular(4),
           ),
           child: Text(

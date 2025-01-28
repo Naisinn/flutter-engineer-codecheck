@@ -10,13 +10,13 @@ import 'detail_screen.dart';
 
 /// リポジトリを検索する画面
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({Key? key}) : super(key: key);
+  const SearchScreen({super.key});
 
   @override
-  _SearchScreenState createState() => _SearchScreenState();
+  SearchScreenState createState() => SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class SearchScreenState extends State<SearchScreen> {
   // 検索キーワード、オーナー名の入力コントローラ
   final TextEditingController _queryController = TextEditingController();
   final TextEditingController _ownerController = TextEditingController();
@@ -38,7 +38,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final List<String> _sortOrderOptions = sortOrderOptions.keys.toList();
 
   /// 検索を実行するメソッド
-  void _search() {
+  Future<void> _search() async {
     FocusScope.of(context).unfocus(); // キーボードを閉じる
 
     final query = _queryController.text;
@@ -49,13 +49,16 @@ class _SearchScreenState extends State<SearchScreen> {
         ? LicenseUtils.licenseMap.entries
         .firstWhere(
           (entry) => entry.value['abbreviation'] == _selectedLicense,
-      orElse: () => MapEntry('unknown', {
-        'icon': Icons.help_outline,
-        'color': Colors.grey,
-        'url': 'https://choosealicense.com/licenses/',
-        'abbreviation': 'Unknown',
-        'githubKey': '',
-      }),
+      orElse: () => MapEntry(
+        'unknown',
+        {
+          'icon': Icons.help_outline,
+          'color': Colors.grey,
+          'url': 'https://choosealicense.com/licenses/',
+          'abbreviation': 'Unknown',
+          'githubKey': '',
+        },
+      ),
     )
         .value['githubKey'] as String?
         : null;
@@ -81,9 +84,8 @@ class _SearchScreenState extends State<SearchScreen> {
         ? _selectedLanguage
         : null;
 
-    // 検索キーワードが空でも検索を実行するように変更
-    Provider.of<RepositoryProvider>(context, listen: false).search(
-      context,
+    // Providerからsearchを呼ぶ
+    await Provider.of<RepositoryProvider>(context, listen: false).search(
       query,
       owner: owner,
       language: language,
@@ -91,6 +93,9 @@ class _SearchScreenState extends State<SearchScreen> {
       sort: sort,
       order: order,
     );
+
+    if (!mounted) return; // 非同期後に context を使う場合はチェック
+    // ※ 現状特にUI更新以外はしていないので、このままでもOK
   }
 
   @override
@@ -99,7 +104,8 @@ class _SearchScreenState extends State<SearchScreen> {
     final loc = AppLocalizations.of(context)!;
 
     // 取得したソートキーをリストアイテムに渡す
-    String currentSortKey = _selectedSort != null && _selectedSort != 'ベストマッチ'
+    String currentSortKey =
+    _selectedSort != null && _selectedSort != 'ベストマッチ'
         ? sortOptions[_selectedSort!] ?? 'stars'
         : 'stars'; // デフォルトはスター数
 
@@ -245,15 +251,14 @@ class _SearchScreenState extends State<SearchScreen> {
               const SizedBox(height: 16),
 
               // 検索中のプログレスインジケータ
-              if (provider.isLoading)
-                const CircularProgressIndicator(),
+              if (provider.isLoading) const CircularProgressIndicator(),
 
               // エラーメッセージの表示
-              if (provider.errorMessage != null)
+              if (provider.errorType != null)
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(
-                    provider.errorMessage!,
+                    _getErrorMessage(provider.errorType!, loc),
                     style: const TextStyle(color: Colors.red),
                   ),
                 ),
@@ -262,20 +267,42 @@ class _SearchScreenState extends State<SearchScreen> {
 
           // 検索結果リスト
           if (!provider.isLoading && provider.repositories.isNotEmpty)
-            ...provider.repositories.map((repo) => RepositoryListItem(
-              repository: repo,
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DetailScreen(repository: repo),
-                  ),
-                );
-              },
-              sortCriteria: currentSortKey, // 追加: ソート基準を渡す
-            ))
+            ...provider.repositories.map(
+                  (repo) => RepositoryListItem(
+                repository: repo,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DetailScreen(repository: repo),
+                    ),
+                  );
+                },
+                sortCriteria: currentSortKey,
+              ),
+            ),
         ],
       ),
     );
+  }
+
+  /// エラーメッセージを取得するヘルパーメソッド
+  String _getErrorMessage(RepositoryErrorType errorType, AppLocalizations loc) {
+    switch (errorType) {
+      case RepositoryErrorType.noInternet:
+        return loc.errorNoInternet;
+      case RepositoryErrorType.notFound:
+        return loc.errorNotFound;
+      case RepositoryErrorType.serverError:
+        return loc.errorServerError;
+      case RepositoryErrorType.rateLimit:
+        return loc.errorRateLimit;
+      case RepositoryErrorType.timeout:
+        return loc.errorTimeout;
+      case RepositoryErrorType.noResults:
+        return loc.errorNoResults;
+      case RepositoryErrorType.unknown:
+        return loc.errorUnknown;
+    }
   }
 }

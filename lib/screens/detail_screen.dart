@@ -8,12 +8,74 @@ import '../services/github_api_service.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class DetailScreen extends StatelessWidget {
+class DetailScreen extends StatefulWidget {
   final Repository repository;
 
-  const DetailScreen({Key? key, required this.repository}) : super(key: key);
+  const DetailScreen({super.key, required this.repository});
 
-  // 共通のライセンスマッピングを使用するヘルパーメソッド
+  @override
+  DetailScreenState createState() => DetailScreenState();
+}
+
+// 公開クラス: "Invalid use of a private type in a public API" を回避するため
+class DetailScreenState extends State<DetailScreen> {
+  // 事前にローカライズ済みのスナックバー用テキストを保存
+  late final String msgOpenExternal;
+  late final String msgLicenseFail;
+  late final String msgErrorAndOpenExternal;
+  late final String msgOpenedExternal;
+  late final String msgUrlFail;
+  late final String msgLinkError;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final loc = AppLocalizations.of(context)!;
+    msgOpenExternal = loc.snackbarOpenExternal;
+    msgLicenseFail = loc.snackbarLicenseFail;
+    msgErrorAndOpenExternal = loc.snackbarErrorAndOpenExternal;
+    msgOpenedExternal = loc.snackbarOpenedExternal;
+    msgUrlFail = loc.snackbarUrlFail;
+    msgLinkError = loc.snackbarLinkError;
+  }
+
+  /// ライセンスリンクをタップした際の処理
+  Future<void> _onLicenseTap(String url) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final uri = Uri.parse(url);
+
+    bool launched = false;
+    try {
+      launched = await launchUrl(uri, mode: LaunchMode.inAppWebView);
+      if (!launched) {
+        if (!mounted) return;
+        messenger.showSnackBar(SnackBar(content: Text(msgOpenExternal)));
+        launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+        if (!launched) {
+          if (!mounted) return;
+          messenger.showSnackBar(SnackBar(content: Text(msgLicenseFail)));
+        }
+      }
+    } catch (e) {
+      if (!mounted) return;
+      messenger.showSnackBar(SnackBar(content: Text(msgErrorAndOpenExternal)));
+      try {
+        launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+        if (!launched) {
+          if (!mounted) return;
+          messenger.showSnackBar(SnackBar(content: Text(msgLicenseFail)));
+        } else {
+          if (!mounted) return;
+          messenger.showSnackBar(SnackBar(content: Text(msgOpenedExternal)));
+        }
+      } catch (e) {
+        if (!mounted) return;
+        messenger.showSnackBar(SnackBar(content: Text(msgLicenseFail)));
+      }
+    }
+  }
+
+  /// 共通のライセンスマッピングを使用するヘルパーメソッド
   Widget _buildLicenseInfo(BuildContext context, String licenseName) {
     final licenseKey = licenseName.toLowerCase();
     final licenseData = LicenseUtils.licenseMap[licenseKey];
@@ -36,75 +98,7 @@ class DetailScreen extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: () async {
-        final loc = AppLocalizations.of(context)!;
-        final uri = Uri.parse(url);
-        bool launched = false;
-        try {
-          // 内部ブラウザで開くことを試みる
-          launched = await launchUrl(
-            uri,
-            mode: LaunchMode.inAppWebView,
-          );
-          if (!launched) {
-            // 内部ブラウザで開けなかった場合、SnackBarを表示してから外部ブラウザを開く
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(loc.snackbarOpenExternal),
-                backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
-              ),
-            );
-            launched = await launchUrl(
-              uri,
-              mode: LaunchMode.externalApplication,
-            );
-            if (!launched) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(loc.snackbarLicenseFail),
-                  backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
-                ),
-              );
-            }
-          }
-        } catch (e) {
-          // 例外が発生した場合も外部ブラウザを試みる前にSnackBarを表示
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(loc.snackbarErrorAndOpenExternal),
-              backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
-            ),
-          );
-          try {
-            launched = await launchUrl(
-              uri,
-              mode: LaunchMode.externalApplication,
-            );
-            if (!launched) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(loc.snackbarLicenseFail),
-                  backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
-                ),
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(loc.snackbarOpenedExternal),
-                  backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
-                ),
-              );
-            }
-          } catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(loc.snackbarLicenseFail),
-                backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
-              ),
-            );
-          }
-        }
-      },
+      onTap: () => _onLicenseTap(url),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -123,7 +117,7 @@ class DetailScreen extends StatelessWidget {
     );
   }
 
-  // 新規追加: ヘルパーメソッドで属性情報のウィジェットを生成
+  /// 属性情報を表示するヘルパーメソッド
   Widget _buildAttributeItem({
     required BuildContext context,
     required IconData icon,
@@ -136,14 +130,12 @@ class DetailScreen extends StatelessWidget {
       onTap: () {
         showDialog(
           context: context,
-          builder: (BuildContext context) {
+          builder: (c) {
             return AlertDialog(
               content: Text(description),
               actions: [
                 TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
+                  onPressed: () => Navigator.of(c).pop(),
                   child: Text(loc.close),
                 ),
               ],
@@ -162,16 +154,52 @@ class DetailScreen extends StatelessWidget {
     );
   }
 
+  /// リポジトリURLを開くボタン押下時の処理
+  Future<void> _openRepositoryUrl() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final uri = Uri.parse(widget.repository.htmlUrl);
+
+    bool launched = false;
+    try {
+      launched = await launchUrl(uri, mode: LaunchMode.inAppWebView);
+      if (!launched) {
+        if (!mounted) return;
+        messenger.showSnackBar(SnackBar(content: Text(msgOpenExternal)));
+        launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+        if (!launched) {
+          if (!mounted) return;
+          messenger.showSnackBar(SnackBar(content: Text(msgUrlFail)));
+        }
+      }
+    } catch (e) {
+      if (!mounted) return;
+      messenger.showSnackBar(SnackBar(content: Text(msgErrorAndOpenExternal)));
+      try {
+        launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+        if (!launched) {
+          if (!mounted) return;
+          messenger.showSnackBar(SnackBar(content: Text(msgUrlFail)));
+        } else {
+          if (!mounted) return;
+          messenger.showSnackBar(SnackBar(content: Text(msgOpenedExternal)));
+        }
+      } catch (e) {
+        if (!mounted) return;
+        messenger.showSnackBar(SnackBar(content: Text(msgUrlFail)));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
+    final repository = widget.repository; // ローカル変数に取り出し
     final String readmeBaseUrl =
         'https://raw.githubusercontent.com/${repository.ownerName}/${repository.name}/HEAD/';
 
     return Scaffold(
       appBar: AppBar(
         title: Text(repository.name),
-        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -253,74 +281,7 @@ class DetailScreen extends StatelessWidget {
               const SizedBox(height: 16),
               Center(
                 child: ElevatedButton(
-                  onPressed: () async {
-                    final uri = Uri.parse(repository.htmlUrl);
-                    bool launched = false;
-                    try {
-                      // 内部ブラウザで開くことを試みる
-                      launched = await launchUrl(
-                        uri,
-                        mode: LaunchMode.inAppWebView,
-                      );
-                      if (!launched) {
-                        // 内部ブラウザで開けなかった場合、SnackBarを表示してから外部ブラウザを開く
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(loc.snackbarOpenExternal),
-                            backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
-                          ),
-                        );
-                        launched = await launchUrl(
-                          uri,
-                          mode: LaunchMode.externalApplication,
-                        );
-                        if (!launched) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(loc.snackbarUrlFail),
-                              backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
-                            ),
-                          );
-                        }
-                      }
-                    } catch (e) {
-                      // 例外が発生した場合も外部ブラウザを試みる前にSnackBarを表示
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(loc.snackbarErrorAndOpenExternal),
-                          backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
-                        ),
-                      );
-                      try {
-                        launched = await launchUrl(
-                          uri,
-                          mode: LaunchMode.externalApplication,
-                        );
-                        if (!launched) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(loc.snackbarUrlFail),
-                              backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(loc.snackbarOpenedExternal),
-                              backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
-                            ),
-                          );
-                        }
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(loc.snackbarUrlFail),
-                            backgroundColor: Theme.of(context).snackBarTheme.backgroundColor,
-                          ),
-                        );
-                      }
-                    }
-                  },
+                  onPressed: _openRepositoryUrl,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -328,7 +289,11 @@ class DetailScreen extends StatelessWidget {
                         'assets/github-mark.svg',
                         width: 20,
                         height: 20,
-                        color: Theme.of(context).iconTheme.color, // アイコンの色を設定
+                        // colorプロパティはdeprecatedなのでcolorFilterを使用
+                        colorFilter: ColorFilter.mode(
+                          Theme.of(context).iconTheme.color ?? Colors.black,
+                          BlendMode.srcIn,
+                        ),
                       ),
                       const SizedBox(width: 8),
                       Text(loc.openInGitHub),
@@ -355,7 +320,9 @@ class DetailScreen extends StatelessWidget {
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return Text(
                       loc.noReadme,
-                      style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color),
+                      style: TextStyle(
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
+                      ),
                     );
                   } else {
                     String readmeContent = snapshot.data!;
@@ -365,67 +332,75 @@ class DetailScreen extends StatelessWidget {
                       r'\.\.\s+image::\s+(\S+)\s+:alt:\s+([^:]+)\s+:target:\s+(\S+)',
                       multiLine: true,
                     );
-
-                    readmeContent = readmeContent.replaceAllMapped(imageRegExp, (match) {
-                      final imageUrl = match.group(1)?.trim() ?? '';
-                      final altText = match.group(2)?.trim() ?? '';
-                      final targetUrl = match.group(3)?.trim() ?? '';
-                      return '[![$altText]($imageUrl)]($targetUrl)';
-                    });
+                    readmeContent =
+                        readmeContent.replaceAllMapped(imageRegExp, (match) {
+                          final imageUrl = match.group(1)?.trim() ?? '';
+                          final altText = match.group(2)?.trim() ?? '';
+                          final targetUrl = match.group(3)?.trim() ?? '';
+                          return '[![$altText]($imageUrl)]($targetUrl)';
+                        });
 
                     final RegExp heading1RegExp = RegExp(
                       r'^(.*?)\n=+\n',
                       multiLine: true,
                     );
-                    readmeContent = readmeContent.replaceAllMapped(heading1RegExp, (match) {
-                      final title = match.group(1)?.trim() ?? '';
-                      return '# $title\n\n';
-                    });
+                    readmeContent =
+                        readmeContent.replaceAllMapped(heading1RegExp, (match) {
+                          final title = match.group(1)?.trim() ?? '';
+                          return '# $title\n\n';
+                        });
 
                     final RegExp heading2RegExp = RegExp(
                       r'^(.*?)\n-+\n',
                       multiLine: true,
                     );
-                    readmeContent = readmeContent.replaceAllMapped(heading2RegExp, (match) {
-                      final title = match.group(1)?.trim() ?? '';
-                      return '## $title\n\n';
-                    });
+                    readmeContent =
+                        readmeContent.replaceAllMapped(heading2RegExp, (match) {
+                          final title = match.group(1)?.trim() ?? '';
+                          return '## $title\n\n';
+                        });
 
                     final RegExp heading3RegExp = RegExp(
                       r'^(.*?)\n~+\n',
                       multiLine: true,
                     );
-                    readmeContent = readmeContent.replaceAllMapped(heading3RegExp, (match) {
-                      final title = match.group(1)?.trim() ?? '';
-                      return '### $title\n\n';
-                    });
+                    readmeContent =
+                        readmeContent.replaceAllMapped(heading3RegExp, (match) {
+                          final title = match.group(1)?.trim() ?? '';
+                          return '### $title\n\n';
+                        });
 
                     final RegExp linkRegExp = RegExp(
                       r'`([^`<]+)\s*<([^>]+)>`_',
                       multiLine: true,
                     );
-                    readmeContent = readmeContent.replaceAllMapped(linkRegExp, (match) {
-                      final text = match.group(1)?.trim() ?? '';
-                      final url = match.group(2)?.trim() ?? '';
-                      return '[$text]($url)';
-                    });
+                    readmeContent =
+                        readmeContent.replaceAllMapped(linkRegExp, (match) {
+                          final text = match.group(1)?.trim() ?? '';
+                          final url = match.group(2)?.trim() ?? '';
+                          return '[$text]($url)';
+                        });
 
                     final RegExp codeBlockRegExp = RegExp(
                       r'::\n((?:\n| +.+)+)',
                       multiLine: true,
                     );
-                    readmeContent = readmeContent.replaceAllMapped(codeBlockRegExp, (match) {
-                      final code = match.group(1)
-                          ?.replaceAll(RegExp(r'^\s{4}', multiLine: true), '') ??
-                          '';
-                      return '```\n$code\n```\n';
-                    });
+                    readmeContent =
+                        readmeContent.replaceAllMapped(codeBlockRegExp, (match) {
+                          final code = match.group(1)?.replaceAll(
+                            RegExp(r'^\s{4}', multiLine: true),
+                            '',
+                          ) ??
+                              '';
+                          return '```\n$code\n```\n';
+                        });
 
                     return MarkdownBody(
                       selectable: true,
                       data: readmeContent,
                       onTapLink: (text, href, title) async {
                         if (href != null) {
+                          final messenger = ScaffoldMessenger.of(context);
                           final uri = Uri.parse(href);
                           bool launched = false;
                           try {
@@ -434,42 +409,30 @@ class DetailScreen extends StatelessWidget {
                               mode: LaunchMode.inAppWebView,
                             );
                             if (!launched) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(loc.snackbarOpenExternal),
-                                  backgroundColor:
-                                  Theme.of(context).snackBarTheme.backgroundColor,
-                                ),
+                              if (!mounted) return;
+                              messenger.showSnackBar(
+                                SnackBar(content: Text(msgOpenExternal)),
                               );
                               launched = await launchUrl(
                                 uri,
                                 mode: LaunchMode.externalApplication,
                               );
                               if (!launched) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(loc.snackbarLinkFail),
-                                    backgroundColor:
-                                    Theme.of(context).snackBarTheme.backgroundColor,
-                                  ),
+                                if (!mounted) return;
+                                messenger.showSnackBar(
+                                  SnackBar(content: Text(msgUrlFail)),
                                 );
                               }
                             } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(loc.snackbarOpenedExternal),
-                                  backgroundColor:
-                                  Theme.of(context).snackBarTheme.backgroundColor,
-                                ),
+                              if (!mounted) return;
+                              messenger.showSnackBar(
+                                SnackBar(content: Text(msgOpenedExternal)),
                               );
                             }
                           } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(loc.snackbarLinkError),
-                                backgroundColor:
-                                Theme.of(context).snackBarTheme.backgroundColor,
-                              ),
+                            if (!mounted) return;
+                            messenger.showSnackBar(
+                              SnackBar(content: Text(msgLinkError)),
                             );
                           }
                         }
@@ -477,7 +440,9 @@ class DetailScreen extends StatelessWidget {
                       imageBuilder: (uri, title, alt) {
                         final String imageUrl = uri.isAbsolute
                             ? uri.toString()
-                            : Uri.parse(readmeBaseUrl).resolve(uri.toString()).toString();
+                            : Uri.parse(readmeBaseUrl)
+                            .resolve(uri.toString())
+                            .toString();
 
                         final Uri parsedUri = Uri.parse(imageUrl);
                         if (parsedUri.path.toLowerCase().endsWith('.svg')) {
@@ -488,7 +453,8 @@ class DetailScreen extends StatelessWidget {
                               height: 24,
                               child: CircularProgressIndicator(
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                    Theme.of(context).colorScheme.primary),
+                                  Theme.of(context).colorScheme.primary,
+                                ),
                               ),
                             ),
                             height: 24,
@@ -501,7 +467,9 @@ class DetailScreen extends StatelessWidget {
                             errorBuilder: (context, error, stackTrace) {
                               return Text(
                                 loc.imageLoadFail(alt ?? loc.unknownImage),
-                                style: TextStyle(color: Theme.of(context).colorScheme.error),
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
                               );
                             },
                           );
