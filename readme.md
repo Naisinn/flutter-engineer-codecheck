@@ -1,154 +1,115 @@
-# flutter_engineer_codecheck
+```markdown
+# Github検索
 
-## 日本語版
+## 概要
+**Github検索**は、GitHubリポジトリを検索し、詳細情報（スター数、ウォッチ数、フォーク数、イシュー数、READMEなど）を確認できるFlutterアプリです。  
+ユーザーはキーワードやオーナー名、プログラミング言語、ライセンスなどのフィルタを使用して、目的のリポジトリを効果的に検索できます。  
+さらに、**ダークモード**と**英語表示**にも対応しており、ユーザーの好みに合わせてインターフェースをカスタマイズできます。
 
-### プロジェクト概要
+## スクリーンショット
+![Github検索_検索画面.jpg](assets%2FGithub%E6%A4%9C%E7%B4%A2_%E6%A4%9C%E7%B4%A2%E7%94%BB%E9%9D%A2.jpg)
+![Github検索_検索結果.jpg](assets%2FGithub%E6%A4%9C%E7%B4%A2_%E6%A4%9C%E7%B4%A2%E7%B5%90%E6%9E%9C.jpg)
+![Github検索_詳細画面.jpg](assets%2FGithub%E6%A4%9C%E7%B4%A2_%E8%A9%B3%E7%B4%B0%E7%94%BB%E9%9D%A2.jpg)
+![Github検索_ダークモード.jpg](assets%2FGithub%E6%A4%9C%E7%B4%A2_%E3%83%80%E3%83%BC%E3%82%AF%E3%83%A2%E3%83%BC%E3%83%89.jpg)
 
-このプロジェクトは、[株式会社ゆめみ](https://www.yumemi.co.jp/) 様が Flutter エンジニアを希望する方に与えるコードチェック課題（[要件](#株式会社ゆめみ-flutter-エンジニアコードチェック課題)）に基づいて作成したものです。  
-GitHub リポジトリを検索し、詳細情報（スター数、ウォッチ数、フォーク数、イシュー数、README など）を確認できる Flutter アプリです。
+## インストール方法
+以下の手順に従って、**Github検索**アプリケーションをローカル環境にセットアップしてください。
 
-### デモ・スクリーンショット
+### 前提条件
+- [Flutter](https://flutter.dev/docs/get-started/install) がインストールされていること
+- Gitがインストールされていること
 
-*ご利用の際に、必要に応じてスクリーンショットや GIF アニメを貼ってください。  
-例: ダークモード・ライトモードそれぞれのキャプチャなど*
+### 手順
+1. **リポジトリのクローン**
 
-### 主な機能
+   ```bash
+   git clone https://github.com/your-username/github-search.git
+   cd github-search
+   ```
 
-- GitHub リポジトリ検索（キーワードで検索可能）
-- 高度な検索オプション（オーナー名、言語、ライセンス、ソート指定など）
-- 詳細画面でリポジトリの各種情報表示（オーナーアイコン、リポジトリ名、スター数、ウォッチ数、フォーク数、イシュー数、使用言語、ライセンスなど）
-- README を Markdown 表示
-- ダークモード対応
+2. **依存パッケージのインストール**
 
-### フォルダ構造
+   Flutterプロジェクトのルートディレクトリで、以下のコマンドを実行して必要なパッケージをインストールします。
 
-.
-├── main.dart  
-├── models  
-│   └── repository.dart  
-├── providers  
-│   └── repository_provider.dart  
-├── screens  
-│   ├── detail_screen.dart  
-│   └── search_screen.dart  
-├── services  
-│   └── github_api_service.dart  
-├── utils  
-│   ├── constants.dart  
-│   └── license_utils.dart  
-└── widgets  
-└── repository_list_item.dart
+   ```bash
+   flutter pub get
+   ```
 
-- **main.dart**  
-  アプリのエントリーポイント。`MaterialApp` の設定や、プロバイダーの初期化などを行います。
-- **models/**  
-  ドメインモデルを定義します。`Repository` クラスなど。
-- **providers/**  
-  検索処理や取得データの管理を担う `RepositoryProvider` など、`ChangeNotifier` を利用した状態管理ロジックを配置しています。
-- **screens/**  
-  画面（UI）の実装。検索画面 (`search_screen.dart`)、詳細画面 (`detail_screen.dart`)。
-- **services/**  
-  API 呼び出しなど、外部サービスとの通信やビジネスロジックに近い機能を実装します。`github_api_service.dart` など。
-- **utils/**  
-  定数 (`constants.dart`) やライセンス情報をまとめたヘルパー (`license_utils.dart`) を配置。
-- **widgets/**  
-  汎用的なウィジェットや分割したコンポーネントを配置。例: 検索結果のリストアイテム (`repository_list_item.dart`)。
+3. **アプリケーションの実行**
 
-### セットアップ・導入手順
+   接続されたデバイスまたはエミュレーターでアプリケーションを実行します。
 
-1. **リポジトリをクローン**  
-   `git clone https://github.com/your-username/flutter_engineer_codecheck.git`  
-   `cd flutter_engineer_codecheck`
+   ```bash
+   flutter run
+   ```
 
-2. **依存関係をインストール**  
-   `flutter pub get`
+## 使用方法
+1. **アプリ起動**  
+   アプリケーションを起動すると、検索画面（SearchScreen）が表示されます。
 
-3. **アプリを実行**  
-   `flutter run`
+2. **言語設定**  
+   設定メニューからアプリケーションの言語を日本語または英語に切り替えることができます。
 
-    - Android シミュレータ / 実機、または iOS シミュレータ / 実機で起動可能です。
-    - エミュレータや実機が接続された状態でコマンドを実行してください。
+3. **テーマ設定**  
+   設定メニューからダークモードとライトモードを選択し、インターフェースのテーマを変更できます。
 
-### 依存関係
+4. **基本的な検索**
+    - *検索キーワード入力*  
+      検索バーにリポジトリを探すためのキーワードを入力します。
+    - *検索ボタン*  
+      入力が完了したら、「検索」ボタンをタップしてリポジトリを検索します。
 
-- **provider**: 状態管理
-- **http**: GitHub API への HTTP 通信
-- **url_launcher**: 外部ブラウザまたはアプリ内ブラウザでリンクを開く
-- **flutter_markdown**: README を Markdown 形式でレンダリング
-- **flutter_svg**: SVG 画像をレンダリング
+5. **高度な検索**  
+   検索フォームの折りたたみメニューから、より詳細な検索オプションを指定できます。
+    - *オーナー名*  
+      特定のユーザー名を入力して、そのユーザーが所有するリポジトリに絞り込むことができます。
+    - *プログラミング言語*  
+      指定した言語（Dart、JavaScriptなど）のリポジトリに絞り込みます。
+    - *ライセンス*  
+      プルダウンからMITやGPLなどのライセンスを選択できます。ここで「Any」を選択するとライセンスフィルタを適用しません。
+    - *ソート基準・ソート順*  
+      「スター数」や「フォーク数」など、ソート基準を指定できます。ソート順は降順・昇順の選択が可能です。
 
-### 開発環境
+6. **検索結果の一覧表示**
+    - 検索結果がリスト形式で表示されます。
+    - 各リポジトリの項目（RepositoryListItem）には、リポジトリ名、オーナー名、言語、ライセンス、スター数などが表示されます。
+    - リポジトリ項目をタップすると詳細画面（DetailScreen）に遷移します。
 
-- **Flutter**: 3.5.4
-- **Dart**: version included with Flutter 3.5.4
-- 状態管理: **provider**
-- 対応OS: iOS 9.0+, Android 4.1+
+7. **詳細画面でできること**
+    - **オーナーアバターと基本情報**  
+      上部にオーナーのアバターが表示され、リポジトリ名やオーナー名を確認できます。
+    - **スター数・ウォッチ数・フォーク数・イシュー数の確認**  
+      アイコン付きで表示されており、タップするとポップアップ（AlertDialog）で説明を確認できます。
+    - **プログラミング言語**  
+      リポジトリの主な言語が表示されます。
+    - **ライセンス**  
+      ライセンス情報がアイコンと略称で表示され、タップするとライセンスの公式ページなどの説明ページに移動できます。
+        - 初めにアプリ内ブラウザ（In-App WebView）を試み、失敗した場合は外部ブラウザを開きます。
+    - **GitHubで開く**  
+      「GitHubで開く」ボタンをタップすると、リポジトリのGitHubページをブラウザ（内部ブラウザ→外部ブラウザ）で開きます。
+    - **READMEの表示**
+        - リポジトリのREADMEをGitHub APIから取得し、Markdown形式で表示します。
+        - もしRST形式のREADMEであっても、本文中の画像やリンク、コードブロックなどを一部変換してMarkdownとして表示します。
+        - 画像がSVGの場合は、対応してSVGをレンダリングし、他の画像は通常の画像として表示します。
+        - README内のリンクをタップすると、やはりアプリ内ブラウザ→外部ブラウザの順に開くようになっています。エラーが起きた場合はスナックバーで通知します。
 
-> **注**: 開発時点で最新の安定版（Flutter 3.5.4）を使用。別のバージョンを使う場合は、`README.md` に理由を記載してください。
+8. **エラー処理**
+    - リポジトリ取得やREADMEの取得時にエラーが発生した場合、画面にエラーメッセージを表示します。
+    - リンクを開く際にも失敗時にスナックバーで通知し、外部ブラウザを再試行します。
 
-### ライセンス
+## 特徴
+- **ダークモード対応**  
+  ユーザーの好みに合わせてダークモードとライトモードを選択可能です。
 
-本リポジトリはパブリックリポジトリとして公開していません（`publish_to: 'none'` ）。  
-利用や転載をご希望の方は別途ご相談ください。
+- **多言語サポート**  
+  日本語と英語に対応しており、ユーザーインターフェースの言語を切り替えることができます。
 
----
+- **高度な検索機能**  
+  キーワード、オーナー名、プログラミング言語、ライセンス、ソート基準など、豊富なフィルタリングオプションを提供します。
 
-## English Version
+- **詳細情報の表示**  
+  リポジトリの詳細情報を豊富に表示し、READMEの内容も確認できます。
 
-### Project Overview
-
-This project is based on the [code-check assignment](#requirements-from-yumemi-flutter-engineer-codecheck-assignment) given by [Yumemi Inc.](https://www.yumemi.co.jp/) for candidates applying for a Flutter Engineer position.  
-It is a Flutter application that searches GitHub repositories and displays detailed information (stars, watchers, forks, issues, README, etc.).
-
-### Main Features
-
-- Search GitHub repositories by keywords
-- Advanced search options (owner name, language, license, sorting, etc.)
-- Detailed repository information (owner icon, repository name, star count, watchers, forks, open issues, main language, license, etc.)
-- Display repository's README in Markdown
-- Supports Dark Mode
-
-### Folder Structure
-
-.
-├── main.dart  
-├── models  
-│   └── repository.dart  
-├── providers  
-│   └── repository_provider.dart  
-├── screens  
-│   ├── detail_screen.dart  
-│   └── search_screen.dart  
-├── services  
-│   └── github_api_service.dart  
-├── utils  
-│   ├── constants.dart  
-│   └── license_utils.dart  
-└── widgets  
-└── repository_list_item.dart
-
-### Setup / Installation
-
-1. **Clone the repository**  
-   `git clone https://github.com/your-username/flutter_engineer_codecheck.git`  
-   `cd flutter_engineer_codecheck`
-
-2. **Install dependencies**  
-   `flutter pub get`
-
-3. **Run the app**  
-   `flutter run`
-
-    - Works with Android emulators/devices or iOS simulators/devices.
-
-### Development Environment
-
-- **Flutter**: 3.5.4
-- **Dart**: version included with Flutter 3.5.4
-- State Management: **provider**
-- Supported OS: iOS 9.0+, Android 4.1+
-
-### License
-
-This repository is not published to pub.dev (`publish_to: 'none'`).  
-Contact us if you wish to use or redistribute this project.
+## ライセンス
+本プロジェクトは [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0) のもとで公開されています。
+```
